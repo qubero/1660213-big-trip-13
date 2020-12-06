@@ -4,10 +4,17 @@ import {createEventFilterTemplate} from "./view/event-filter.js";
 import {createTripSortTemplate} from "./view/trip-sort.js";
 import {createEventsListTemplate} from "./view/events-list.js";
 import {createEventTemplate} from "./view/event.js";
-import {createEventAddTemplate} from "./view/event-add.js";
 import {createEventEditTemplate} from "./view/event-edit.js";
+import {generateEvent} from "./mock/event.js";
 
-const EVENTS_COUNT = 3;
+const EVENTS_COUNT = 10;
+
+const sortEventsByDate = (a, b) => {
+  return a.date.end.getTime() - b.date.end.getTime();
+};
+
+const events = new Array(EVENTS_COUNT).fill().map(generateEvent);
+const eventsByDate = [...events].slice().sort(sortEventsByDate);
 
 const render = (container, template, place) => {
   container.insertAdjacentHTML(place, template);
@@ -19,7 +26,7 @@ const сontrolsElement = siteHeaderElement.querySelector(`.trip-controls`);
 const siteMainElement = document.querySelector(`.page-main`);
 const tripEventsElement = siteMainElement.querySelector(`.trip-events`);
 
-render(tripElement, createTripInfoTemplate(), `afterbegin`);
+render(tripElement, createTripInfoTemplate(eventsByDate), `afterbegin`);
 render(сontrolsElement, createSiteMenuTemplate(), `beforeend`);
 render(сontrolsElement, createEventFilterTemplate(), `beforeend`);
 
@@ -28,10 +35,11 @@ render(tripEventsElement, createEventsListTemplate(), `beforeend`);
 
 const tripEventsListElement = tripEventsElement.querySelector(`.trip-events__list`);
 
-render(tripEventsListElement, createEventAddTemplate(), `beforeend`);
+render(tripEventsListElement, createEventEditTemplate(eventsByDate[0]), `beforeend`);
 
-for (let i = 0; i < EVENTS_COUNT; i++) {
-  render(tripEventsListElement, createEventTemplate(), `beforeend`);
+for (let i = 1; i < EVENTS_COUNT; i++) {
+  render(tripEventsListElement, createEventTemplate(eventsByDate[i]), `beforeend`);
 }
 
 render(tripEventsListElement, createEventEditTemplate(), `beforeend`);
+
