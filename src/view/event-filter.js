@@ -1,3 +1,4 @@
+import {createElement} from "../utils";
 import {FILTERS} from "../mock/const";
 
 const createEventOffersTemplate = (filters) => {
@@ -24,3 +25,25 @@ export const createEventFilterTemplate = () => {
     <button class="visually-hidden" type="submit">Accept filter</button>
   </form>`;
 };
+
+export default class EventFilterView {
+  constructor() {
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createEventFilterTemplate();
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

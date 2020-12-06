@@ -1,3 +1,4 @@
+import {createElement} from "../utils";
 import dayjs from 'dayjs';
 
 const getTripTitle = (events) => {
@@ -19,7 +20,7 @@ const getTripDates = (events) => {
   return `${dateStart.format(`MMM-DD`)}&nbsp;&mdash;&nbsp;${dateEnd.format(`MMM-DD`)}`;
 };
 
-export const createTripInfoTemplate = (events) => {
+const createTripInfoTemplate = (events) => {
   const tripTitle = getTripTitle(events);
   const tripDates = getTripDates(events);
   const totalCost = events.reduce((total, curEvnt) => total + curEvnt.price, 0);
@@ -36,3 +37,26 @@ export const createTripInfoTemplate = (events) => {
     </p>
   </section>`;
 };
+
+export default class TripInfoView {
+  constructor(events) {
+    this._events = events;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createTripInfoTemplate(this._events);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
