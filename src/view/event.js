@@ -1,24 +1,4 @@
-import dayjs from 'dayjs';
-import duration from 'dayjs/plugin/duration';
-dayjs.extend(duration);
-import {getOffers} from '../mock/utils.js';
-
-export const getEventDuration = (startDate, endDate) => {
-  const eventDuration = dayjs.duration(endDate.diff(startDate));
-  const days = eventDuration.days();
-  const hours = eventDuration.hours();
-  const minutes = eventDuration.minutes();
-
-  const addZero = (num) => {
-    return (num < 10 ? `0${num}` : `${num}`);
-  };
-
-  return (
-    `${(days > 0 && addZero(days) + `D`) || ``}
-    ${(hours > 0 && addZero(hours) + `H`) || ``}
-    ${addZero(minutes)}M`
-  );
-};
+import {createElement, getEventDuration, getOffers, humanizeDate} from "../utils";
 
 const createEventOffersTemplate = (offers) => {
   return offers.map((offer) => (
@@ -30,26 +10,24 @@ const createEventOffersTemplate = (offers) => {
   )).join(``);
 };
 
-export const createEventTemplate = (event) => {
+const createEventTemplate = (event) => {
   const {type, destination, price, isFavorite, date} = event;
-  const dateStart = dayjs(date.start);
-  const dateEnd = dayjs(date.end);
-  const eventDuration = getEventDuration(dateStart, dateEnd);
+  const eventDuration = getEventDuration(date.start, date.end);
   const currentOffers = getOffers(type);
   const eventOffersTemplate = createEventOffersTemplate(currentOffers);
 
   return `<li class="trip-events__item">
     <div class="event">
-      <time class="event__date" datetime="${dateStart.format(`YYYY-MM-DD`)}">${dateStart.format(`MMM-DD`)}</time>
+      <time class="event__date" datetime="${humanizeDate(date.start, `YYYY-MM-DD`)}">${humanizeDate(date.start, `MMM-DD`)}</time>
       <div class="event__type">
         <img class="event__type-icon" width="42" height="42" src="img/icons/${type.toLowerCase()}.png" alt="Event type icon">
       </div>
       <h3 class="event__title">${type + ` ` + destination.city}</h3>
       <div class="event__schedule">
         <p class="event__time">
-          <time class="event__start-time" datetime="${dateStart.format(`YYYY-MM-DDTHH:mm`)}">${dateStart.format(`HH:mm`)}</time>
+          <time class="event__start-time" datetime="${humanizeDate(date.start, `YYYY-MM-DDTHH:mm`)}">${humanizeDate(date.start, `HH:mm`)}</time>
           &mdash;
-          <time class="event__end-time" datetime="${dateEnd.format(`YYYY-MM-DDTHH:mm`)}">${dateEnd.format(`HH:mm`)}</time>
+          <time class="event__end-time" datetime="${humanizeDate(date.end, `YYYY-MM-DDTHH:mm`)}">${humanizeDate(date.end, `HH:mm`)}</time>
         </p>
         <p class="event__duration">${eventDuration}</p>
       </div>
@@ -72,3 +50,26 @@ export const createEventTemplate = (event) => {
     </div>
   </li>`;
 };
+
+export default class EventView {
+  constructor(event) {
+    this._event = event;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createEventTemplate(this._event);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

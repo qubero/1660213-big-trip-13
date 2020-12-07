@@ -1,6 +1,18 @@
 import dayjs from 'dayjs';
-import {getOffers} from '../mock/utils.js';
+import {createElement, getOffers} from "../utils";
 import {CITIES, EVENT_TYPES} from '../mock/const.js';
+
+const BLANK_EVENT = {
+  type: EVENT_TYPES[0],
+  date: null,
+  price: null,
+  destination: {
+    city: null,
+    description: null,
+    photos: []
+  },
+  isFavorite: false
+};
 
 const createEventTypesTemplate = (types) => {
   return types.map((type) => (
@@ -135,3 +147,26 @@ export const createEventEditTemplate = (event = {}) => {
     </form>
   </li>`;
 };
+
+export default class EventEditView {
+  constructor(event = BLANK_EVENT) {
+    this._event = event;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createEventEditTemplate(this._event);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

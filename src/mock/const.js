@@ -1,7 +1,7 @@
 export const EVENT_TYPES = [`Taxi`, `Bus`, `Train`, `Ship`, `Transport`, `Drive`, `Flight`, `Check-in`, `Sightseeing`, `Restaurant`];
 export const CITIES = [`Amsterdam`, `Chamonix`, `Geneva`];
-export const SORT = [`Day`, `Event`, `Time`, `Price`, `Offers`];
-export const SORT_DISABLED = [`Event`, `Offers`];
+export const SORTS = [`Day`, `Event`, `Time`, `Price`, `Offers`];
+export const SORTS_DISABLED = [`Event`, `Offers`];
 export const FILTERS = [`Everything`, `Future`, `Past`];
 
 export const OFFERS = [
