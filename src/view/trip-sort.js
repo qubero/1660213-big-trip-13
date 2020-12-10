@@ -1,5 +1,5 @@
-import {createElement} from "../utils";
 import {SORTS, SORTS_DISABLED} from "../mock/const";
+import AbstractView from "./abstract";
 
 const createSortsTemplate = (sortItems) => {
   return sortItems.map((sortItem) => {
@@ -22,24 +22,8 @@ const createTripSortTemplate = () => {
   </form>`;
 };
 
-export default class TripSortView {
-  constructor() {
-    this._element = null;
-  }
-
+export default class TripSortView extends AbstractView {
   getTemplate() {
     return createTripSortTemplate();
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }

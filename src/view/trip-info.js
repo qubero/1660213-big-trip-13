@@ -1,5 +1,5 @@
-import {createElement} from "../utils";
-import dayjs from 'dayjs';
+import {humanizeDate} from "../utils/event.js";
+import AbstractView from "./abstract";
 
 const getTripTitle = (events) => {
   const MAX_CITIES = 3;
@@ -14,10 +14,12 @@ const getTripTitle = (events) => {
 };
 
 const getTripDates = (events) => {
-  const dateStart = dayjs(events[0].date.start);
-  const dateEnd = dayjs(events[events.length - 1].date.end);
+  const date = {
+    start: events[0].date.start,
+    end: events[events.length - 1].date.end
+  };
 
-  return `${dateStart.format(`MMM-DD`)}&nbsp;&mdash;&nbsp;${dateEnd.format(`MMM-DD`)}`;
+  return `${humanizeDate(date.start, `MMM-DD`)}&nbsp;&mdash;&nbsp;${humanizeDate(date.end, `MMM-DD`)}`;
 };
 
 const createTripInfoTemplate = (events) => {
@@ -38,25 +40,13 @@ const createTripInfoTemplate = (events) => {
   </section>`;
 };
 
-export default class TripInfoView {
+export default class TripInfoView extends AbstractView {
   constructor(events) {
+    super();
     this._events = events;
-    this._element = null;
   }
 
   getTemplate() {
     return createTripInfoTemplate(this._events);
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }

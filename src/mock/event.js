@@ -1,6 +1,6 @@
-import dayjs from 'dayjs';
-import {getRandomInt} from './utils';
-import {EVENT_TYPES, CITIES} from './const';
+import dayjs from "dayjs";
+import {getRandomInt} from "../utils/common.js";
+import {EVENT_TYPES, CITIES} from "./const";
 
 const getEventType = () => {
   const randomIndex = getRandomInt(0, EVENT_TYPES.length - 1);
