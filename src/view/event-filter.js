@@ -1,5 +1,5 @@
-import {createElement} from "../utils";
 import {FILTERS} from "../mock/const";
+import AbstractView from "./abstract";
 
 const createEventOffersTemplate = (filters) => {
   return filters.map((filter) => {
@@ -26,24 +26,8 @@ export const createEventFilterTemplate = () => {
   </form>`;
 };
 
-export default class EventFilterView {
-  constructor() {
-    this._element = null;
-  }
-
+export default class EventFilterView extends AbstractView {
   getTemplate() {
     return createEventFilterTemplate();
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }

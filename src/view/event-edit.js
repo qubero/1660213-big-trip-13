@@ -1,6 +1,6 @@
-import dayjs from 'dayjs';
-import {createElement, getOffers} from "../utils";
-import {CITIES, EVENT_TYPES} from '../mock/const.js';
+import {getOffers, humanizeDate} from "../utils/event.js";
+import {CITIES, EVENT_TYPES} from "../mock/const.js";
+import AbstractView from "./abstract";
 
 const BLANK_EVENT = {
   type: EVENT_TYPES[0],
@@ -82,9 +82,6 @@ const createEventDestinationTemplate = (destination) => {
 export const createEventEditTemplate = (event = {}) => {
   const {type, destination, price, date} = event;
   const currentType = !type ? EVENT_TYPES[0] : type;
-
-  const dateStart = date && dayjs(date.start);
-  const dateEnd = date && dayjs(date.end);
   const currentOffers = getOffers(currentType);
 
   const typesTemplate = createEventTypesTemplate(EVENT_TYPES);
@@ -122,10 +119,10 @@ export const createEventEditTemplate = (event = {}) => {
 
         <div class="event__field-group  event__field-group--time">
           <label class="visually-hidden" for="event-start-time-1">From</label>
-          <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${dateStart ? dateStart.format(`DD/MM/YY HH:mm`) : ``}">
+          <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${date ? humanizeDate(date.start, `DD/MM/YY HH:mm`) : ``}">
           &mdash;
           <label class="visually-hidden" for="event-end-time-1">To</label>
-          <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${dateStart ? dateEnd.format(`DD/MM/YY HH:mm`) : ``}">
+          <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${date ? humanizeDate(date.end, `DD/MM/YY HH:mm`) : ``}">
         </div>
 
         <div class="event__field-group  event__field-group--price">
@@ -151,25 +148,36 @@ export const createEventEditTemplate = (event = {}) => {
   </li>`;
 };
 
-export default class EventEditView {
+export default class EventEditView extends AbstractView {
   constructor(event = BLANK_EVENT) {
+    super();
     this._event = event;
-    this._element = null;
+
+    this._rollupClickHandler = this._rollupClickHandler.bind(this);
+    this._formSubmitHandler = this._formSubmitHandler.bind(this);
   }
 
   getTemplate() {
     return createEventEditTemplate(this._event);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
+  _rollupClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.rollupClick();
   }
 
-  removeElement() {
-    this._element = null;
+  setRollupClickHandler(callback) {
+    this._callback.rollupClick = callback;
+    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._rollupClickHandler);
+  }
+
+  _formSubmitHandler(evt) {
+    evt.preventDefault();
+    this._callback.formSubmit();
+  }
+
+  setFormSubmitHandler(callback) {
+    this._callback.formSubmit = callback;
+    this.getElement().querySelector(`form`).addEventListener(`submit`, this._formSubmitHandler);
   }
 }
