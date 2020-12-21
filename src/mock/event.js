@@ -2,6 +2,8 @@ import dayjs from "dayjs";
 import {getRandomInt} from "../utils/common.js";
 import {EVENT_TYPES, CITIES} from "./const";
 
+const generateId = () => Date.now() + parseInt(Math.random() * 10000, 10);
+
 const getEventType = () => {
   const randomIndex = getRandomInt(0, EVENT_TYPES.length - 1);
 
@@ -65,6 +67,7 @@ export const generateEvent = () => {
   const type = getEventType();
 
   return {
+    id: generateId(),
     type,
     date: generateDate(),
     price: getRandomInt(20, 650),
