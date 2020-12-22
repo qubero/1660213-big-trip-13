@@ -14,20 +14,22 @@ const createEventOffersTemplate = (filters) => {
   }).join(``);
 };
 
-export const createEventFilterTemplate = () => {
+export const createFiltersTemplate = () => {
   const filtersTemplate = createEventOffersTemplate(FILTERS);
 
-  return `<h2 class="visually-hidden">Filter events</h2>
-  <!-- Фильтры -->
-  <form class="trip-filters" action="#" method="get">
-    ${filtersTemplate}
+  return `<div>
+    <h2 class="visually-hidden">Filter events</h2>
+    <!-- Фильтры -->
+    <form class="trip-filters" action="#" method="get">
+      ${filtersTemplate}
 
-    <button class="visually-hidden" type="submit">Accept filter</button>
-  </form>`;
+      <button class="visually-hidden" type="submit">Accept filter</button>
+    </form>
+  </div>`;
 };
 
-export default class EventFilterView extends AbstractView {
+export default class FiltersView extends AbstractView {
   getTemplate() {
-    return createEventFilterTemplate();
+    return createFiltersTemplate();
   }
 }
