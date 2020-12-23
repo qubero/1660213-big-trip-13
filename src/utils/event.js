@@ -9,12 +9,14 @@ export const humanizeDate = (date, format) => {
 };
 
 export const getEventDuration = (dateStart, dateEnd) => {
-  const startDate = dayjs(dateStart);
-  const endDate = dayjs(dateEnd);
-  const eventDuration = dayjs.duration(endDate.diff(startDate));
-  const days = eventDuration.days();
-  const hours = eventDuration.hours();
-  const minutes = eventDuration.minutes();
+  return dayjs(dateEnd).diff(dayjs(dateStart));
+};
+
+export const humanizeEventDuration = (eventDuration) => {
+  const currentDuration = dayjs.duration(eventDuration);
+  const days = currentDuration.days();
+  const hours = currentDuration.hours();
+  const minutes = currentDuration.minutes();
 
   const addZero = (num) => {
     return (num < 10 ? `0${num}` : `${num}`);
@@ -41,4 +43,19 @@ export const getOffers = (type) => {
   }
 
   return currentOffers;
+};
+
+export const sortEventsByPrice = (eventA, eventB) => {
+  return eventB.price - eventA.price;
+};
+
+export const sortEventsByDuration = (eventA, eventB) => {
+  const durationA = getEventDuration(eventA.date.start, eventA.date.end);
+  const durationB = getEventDuration(eventB.date.start, eventB.date.end);
+
+  return durationB - durationA;
+};
+
+export const sortEventsByDate = (eventA, eventB) => {
+  return eventA.date.start.getTime() - eventB.date.start.getTime();
 };

@@ -1,8 +1,14 @@
 export const EVENT_TYPES = [`Taxi`, `Bus`, `Train`, `Ship`, `Transport`, `Drive`, `Flight`, `Check-in`, `Sightseeing`, `Restaurant`];
 export const CITIES = [`Amsterdam`, `Chamonix`, `Geneva`];
-export const SORTS = [`Day`, `Event`, `Time`, `Price`, `Offers`];
-export const SORTS_DISABLED = [`Event`, `Offers`];
 export const FILTERS = [`Everything`, `Future`, `Past`];
+
+export const SORT_TYPES = {
+  DAY: {name: `Day`, isSortable: true},
+  EVENT: {name: `Event`, isSortable: false},
+  TIME: {name: `Time`, isSortable: true},
+  PRICE: {name: `Price`, isSortable: true},
+  OFFERS: {name: `Offers`, isSortable: false},
+};
 
 export const OFFERS = [
   {type: `Taxi`, name: `order`, title: `Order Uber`, price: `20`},
