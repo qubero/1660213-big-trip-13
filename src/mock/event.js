@@ -1,6 +1,9 @@
 import dayjs from "dayjs";
 import {getRandomInt} from "../utils/common.js";
 import {EVENT_TYPES, CITIES} from "./const";
+import {sortEventsByDate} from "../utils/event.js";
+
+const EVENTS_COUNT = 10;
 
 const generateId = () => Date.now() + parseInt(Math.random() * 10000, 10);
 
@@ -79,3 +82,5 @@ export const generateEvent = () => {
     isFavorite: Boolean(getRandomInt(0, 1))
   };
 };
+
+export const events = new Array(EVENTS_COUNT).fill().map(generateEvent).sort(sortEventsByDate);
