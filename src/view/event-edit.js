@@ -1,11 +1,13 @@
 import {getOffers, humanizeDate} from "../utils/event.js";
 import {CITIES, EVENT_TYPES} from "../mock/const.js";
-import AbstractView from "./abstract";
+import SmartView from "./smart";
+import {generateDescription, generatePhotos} from "../mock/event.js";
 
 const BLANK_EVENT = {
   type: EVENT_TYPES[0],
   date: null,
   price: null,
+  offers: [],
   destination: {
     city: null,
     description: null,
@@ -17,8 +19,8 @@ const BLANK_EVENT = {
 const createEventTypesTemplate = (types) => {
   return types.map((type) => (
     `<div class="event__type-item">
-      <input id="event-type-${type.toLowerCase()}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type.toLowerCase()}">
-      <label class="event__type-label  event__type-label--${type.toLowerCase()}" for="event-type-${type.toLowerCase()}-1">${type}</label>
+      <input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}">
+      <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-1">${type}</label>
     </div>`
   )).join(``);
 };
@@ -42,52 +44,50 @@ const createEventOffersTemplate = (offers) => {
   )).join(``);
 
   return (
-    curOffers.length
-      ? `<section class="event__section  event__section--offers">
+    `<section class="event__section  event__section--offers">
         <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
         <div class="event__available-offers">
           ${curOffers}
         </div>
       </section>`
-      : ``
   );
 };
 
-const createEventDestinationTemplate = (destination) => {
+const createEventDestinationTemplate = (destination, isPhotos, isDescription) => {
   const createEventPhotosTemplate = (photos) => {
-    return photos.map((photo) => (
-      `<img class="event__photo" src=${photo} alt="Event photo"></img>`
-    )).join(``);
+    return (
+      `<div class="event__photos-container">
+        <div class="event__photos-tape">
+          ${photos.map((photo) => (
+        `<img class="event__photo" src=${photo} alt="Event photo"></img>`
+      )).join(``)}
+        </div>
+      </div>`
+    );
   };
 
-  const photosTemplate = createEventPhotosTemplate(destination.photos);
+  const photosTemplate = isPhotos ? createEventPhotosTemplate(destination.photos) : ``;
 
   return (
-    (destination.photos.length || destination.description)
+    (isPhotos || isDescription)
       ? `<section class="event__section  event__section--destination">
           <h3 class="event__section-title  event__section-title--destination">${destination.city}</h3>
-          <p class="event__destination-description">${destination.description}</p>
-
-          <div class="event__photos-container">
-            <div class="event__photos-tape">
-              ${photosTemplate}
-            </div>
-          </div>
+          ${isDescription ? `<p class="event__destination-description">${destination.description}</p>` : ``}
+          ${photosTemplate}
         </section>`
       : ``
   );
 };
 
-export const createEventEditTemplate = (event = {}) => {
-  const {type, destination, price, date} = event;
+export const createEventEditTemplate = (data = {}) => {
+  const {type, offers, destination, price, date, isOffers, isPhotos, isDescription} = data;
   const currentType = !type ? EVENT_TYPES[0] : type;
-  const currentOffers = getOffers(currentType);
 
   const typesTemplate = createEventTypesTemplate(EVENT_TYPES);
   const citiesTemplate = createEventCitiesTemplate(CITIES);
-  const offersTemplate = createEventOffersTemplate(currentOffers);
-  const destinationTemplate = destination ? createEventDestinationTemplate(destination) : ``;
+  const offersTemplate = isOffers ? createEventOffersTemplate(offers) : ``;
+  const destinationTemplate = createEventDestinationTemplate(destination, isPhotos, isDescription);
 
   return `<li class="trip-events__item">
     <form class="event event--edit" action="#" method="post">
@@ -148,17 +148,50 @@ export const createEventEditTemplate = (event = {}) => {
   </li>`;
 };
 
-export default class EventEditView extends AbstractView {
+export default class EventEditView extends SmartView {
   constructor(event = BLANK_EVENT) {
     super();
-    this._event = event;
+    this._data = EventEditView.parseEventToData(event);
 
     this._rollupClickHandler = this._rollupClickHandler.bind(this);
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
+
+    this._eventTypeSelectHandler = this._eventTypeSelectHandler.bind(this);
+    this._eventDestinationChangeHandler = this._eventDestinationChangeHandler.bind(this);
+    // N.B. Реализовать во второй части дз вместо с подключением библиотек
+    // this._startDateChangeHandler = this._startDateChangeHandler.bind(this);
+    // this._endDateChangeHandler = this._endDateChangeHandler.bind(this);
+    this._priceInputHandler = this._priceInputHandler.bind(this);
+
+    this._setInnerHandllers();
+  }
+
+  reset(event) {
+    this.updateData(
+        EventEditView.parseEventToData(event)
+    );
   }
 
   getTemplate() {
-    return createEventEditTemplate(this._event);
+    return createEventEditTemplate(this._data);
+  }
+
+  restoreHandlers() {
+    this._setInnerHandllers();
+    this.setRollupClickHandler(this._callback.rollupClick);
+    this.setFormSubmitHandler(this._callback.formSubmit);
+  }
+
+  _setInnerHandllers() {
+    this.getElement()
+      .querySelector(`.event__type-group`)
+      .addEventListener(`input`, this._eventTypeSelectHandler);
+    this.getElement()
+      .querySelector(`.event__input--destination`)
+      .addEventListener(`input`, this._eventDestinationChangeHandler);
+    this.getElement()
+      .querySelector(`.event__input--price`)
+      .addEventListener(`input`, this._priceInputHandler);
   }
 
   _rollupClickHandler(evt) {
@@ -171,13 +204,86 @@ export default class EventEditView extends AbstractView {
     this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._rollupClickHandler);
   }
 
+  _eventTypeSelectHandler(evt) {
+    if (evt.target.name === `event-type`) {
+      const newType = evt.target.value;
+      const newOffers = getOffers(newType);
+
+      this.updateData({
+        type: newType,
+        offers: newOffers,
+        isOffers: !!newOffers.length
+      });
+    }
+  }
+
+  _eventDestinationChangeHandler(evt) {
+    const newDestination = evt.target.value;
+
+    if (!CITIES.includes(newDestination)) {
+      evt.target.setCustomValidity(`Choose actual destination`);
+      evt.target.style.outline = `2px solid red`;
+      evt.target.reportValidity();
+      return;
+    }
+
+    this.updateData({
+      destination: {
+        city: newDestination,
+        description: generateDescription(),
+        photos: generatePhotos()
+      }
+    });
+  }
+
+  _priceInputHandler(evt) {
+    evt.preventDefault();
+    this.updateData({
+      price: evt.target.value
+    }, true);
+  }
+
   _formSubmitHandler(evt) {
     evt.preventDefault();
-    this._callback.formSubmit(this._event);
+
+    const currentOffers = this.getElement().querySelectorAll(`input.event__offer-checkbox`);
+
+    if (currentOffers.length) {
+      let newOffers = [...this._data.offers];
+      newOffers.forEach((offer, index) => (offer.isChecked = currentOffers[index].checked));
+
+      this.updateData({
+        offers: newOffers
+      });
+    }
+
+    this._callback.formSubmit(EventEditView.parseDataToEvent(this._data));
   }
 
   setFormSubmitHandler(callback) {
     this._callback.formSubmit = callback;
     this.getElement().querySelector(`form`).addEventListener(`submit`, this._formSubmitHandler);
+  }
+
+  static parseEventToData(event) {
+    return Object.assign(
+        {},
+        event,
+        {
+          isOffers: !!event.offers.length,
+          isDescription: !!event.destination.description,
+          isPhotos: !!event.destination.photos.length
+        }
+    );
+  }
+
+  static parseDataToEvent(data) {
+    data = Object.assign({}, data);
+
+    delete data.isOffers;
+    delete data.isDescription;
+    delete data.isPhotos;
+
+    return data;
   }
 }

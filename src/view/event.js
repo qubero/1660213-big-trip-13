@@ -1,22 +1,23 @@
-import {getEventDuration, humanizeEventDuration, getOffers, humanizeDate} from "../utils/event.js";
+import {getEventDuration, humanizeEventDuration, humanizeDate} from "../utils/event.js";
 import AbstractView from "./abstract";
 
 const createEventOffersTemplate = (offers) => {
   return offers.map((offer) => (
-    `<li class="event__offer">
-      <span class="event__offer-title">${offer.title}</span>
-      &plus;&euro;&nbsp;
-      <span class="event__offer-price">${offer.price}</span>
-    </li>`
+    offer.isChecked ?
+      `<li class="event__offer">
+        <span class="event__offer-title">${offer.title}</span>
+        &plus;&euro;&nbsp;
+        <span class="event__offer-price">${offer.price}</span>
+      </li>`
+      : ``
   )).join(``);
 };
 
 const createEventTemplate = (event) => {
-  const {type, destination, price, isFavorite, date} = event;
+  const {type, offers, destination, price, isFavorite, date} = event;
   const eventDuration = getEventDuration(date.start, date.end);
   const humanizedEventDuration = humanizeEventDuration(eventDuration);
-  const currentOffers = getOffers(type);
-  const eventOffersTemplate = createEventOffersTemplate(currentOffers);
+  const eventOffersTemplate = createEventOffersTemplate(offers);
 
   return `<li class="trip-events__item">
     <div class="event">
