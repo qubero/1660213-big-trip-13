@@ -11,14 +11,35 @@ export const SORT_TYPES = {
 };
 
 export const OFFERS = [
-  {type: `taxi`, name: `order`, title: `Order Uber`, price: `20`},
-  {type: `flight`, name: `luggage`, title: `Add luggage`, price: `50`},
-  {type: `flight`, name: `comfort`, title: `Switch to comfort`, price: `80`},
-  {type: `drive`, name: `car`, title: `Rent a car`, price: `200`},
-  {type: `check-in`, name: `breakfast`, title: `Add breakfast`, price: `50`},
-  {type: `sightseeing`, name: `tickets`, title: `Book tickets`, price: `40`},
-  {type: `sightseeing`, name: `lunch`, title: `Lunch in city`, price: `30`},
-  {type: `flight`, name: `meal`, title: `Add meal`, price: `15`},
-  {type: `flight`, name: `seats`, title: `Choose seats`, price: `5`},
-  {type: `flight`, name: `train`, title: `Travel by train`, price: `40`}
+  {
+    type: `taxi`,
+    offers: [
+      {title: `Order Uber`, price: 20}
+    ]
+  }, {
+    type: `drive`,
+    offers: [
+      {title: `Rent a car`, price: 200}
+    ]
+  }, {
+    type: `check-in`,
+    offers: [
+      {title: `Add breakfast`, price: 50}
+    ]
+  }, {
+    type: `sightseeing`,
+    offers: [
+      {title: `Book tickets`, price: 30},
+      {title: `Lunch in city`, price: 40}
+    ]
+  }, {
+    type: `flight`,
+    offers: [
+      {title: `Add luggage`, price: 50},
+      {title: `Switch to comfort`, price: 80},
+      {title: `Add meal`, price: 15},
+      {title: `Choose seats`, price: 5},
+      {title: `Travel by train`, price: 40}
+    ]
+  }
 ];

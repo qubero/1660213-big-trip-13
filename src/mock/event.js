@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import {getRandomInt} from "../utils/common.js";
 import {EVENT_TYPES, CITIES} from "./const";
-import {sortEventsByDate, getOffers} from "../utils/event.js";
+import {sortEventsByDate, generateOffers} from "../utils/event.js";
 
 const EVENTS_COUNT = 10;
 
@@ -73,7 +73,7 @@ export const generateEvent = () => {
     type,
     date: generateDate(),
     price: getRandomInt(20, 650),
-    offers: getOffers(type),
+    offers: generateOffers(type),
     destination: {
       city: generateCity(),
       description: generateDescription(),

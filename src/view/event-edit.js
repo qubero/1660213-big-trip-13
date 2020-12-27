@@ -20,7 +20,7 @@ const createEventTypesTemplate = (types) => {
   return types.map((type) => (
     `<div class="event__type-item">
       <input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}">
-      <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-1">${type}</label>
+      <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-1" style="text-transform:capitalize;">${type}</label>
     </div>`
   )).join(``);
 };
@@ -31,11 +31,11 @@ const createEventCitiesTemplate = (cities) => {
   )).join(``);
 };
 
-const createEventOffersTemplate = (offers) => {
-  const curOffers = offers.map((offer) => (
+const createEventOffersTemplate = (offers, type) => {
+  const curOffers = offers.map((offer, index) => (
     `<div class="event__offer-selector">
-      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.name}-1" type="checkbox" name="event-offer-${offer.name}" ${offer.isChecked ? `checked` : ``}>
-      <label class="event__offer-label" for="event-offer-${offer.name}-1">
+      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${type}-${index}" type="checkbox" name="event-offer-${type}" ${offer.isChecked ? `checked` : ``}>
+      <label class="event__offer-label" for="event-offer-${type}-${index}">
         <span class="event__offer-title">${offer.title}</span>
         &plus;&euro;&nbsp;
         <span class="event__offer-price">${offer.price}</span>
@@ -86,7 +86,7 @@ export const createEventEditTemplate = (data = {}) => {
 
   const typesTemplate = createEventTypesTemplate(EVENT_TYPES);
   const citiesTemplate = createEventCitiesTemplate(CITIES);
-  const offersTemplate = isOffers ? createEventOffersTemplate(offers) : ``;
+  const offersTemplate = isOffers ? createEventOffersTemplate(offers, type) : ``;
   const destinationTemplate = createEventDestinationTemplate(destination, isPhotos, isDescription);
 
   return `<li class="trip-events__item">
@@ -224,6 +224,7 @@ export default class EventEditView extends SmartView {
       evt.target.setCustomValidity(`Choose actual destination`);
       evt.target.style.outline = `2px solid red`;
       evt.target.reportValidity();
+
       return;
     }
 

@@ -74,6 +74,7 @@ export default class TripEvent {
   }
 
   _replaceFormToPoint() {
+    this._eventEditComponent.reset(this._event);
     replace(this._eventComponent, this._eventEditComponent);
     document.removeEventListener(`keydown`, this._escKeyDownHandler);
     this._mode = Mode.DEFAULT;
@@ -107,7 +108,6 @@ export default class TripEvent {
   _escKeyDownHandler(evt) {
     if (evt.key === `Escape` || evt.key === `Esc`) {
       evt.preventDefault();
-      this._eventEditComponent.reset(this._event);
       this._replaceFormToPoint();
     }
   }
