@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import {getRandomInt} from "../utils/common.js";
 import {EVENT_TYPES, CITIES} from "./const";
-import {sortEventsByDate} from "../utils/event.js";
+import {sortEventsByDate, generateOffers} from "../utils/event.js";
 
 const EVENTS_COUNT = 10;
 
@@ -34,7 +34,7 @@ const generateCity = () => {
   return CITIES[randomIndex];
 };
 
-const generateDescription = () => {
+export const generateDescription = () => {
   const descriptions = [
     `Lorem ipsum dolor sit amet, consectetur adipiscing elit.`,
     `Cras aliquet varius magna, non porta ligula feugiat eget.`,
@@ -56,7 +56,7 @@ const generateDescription = () => {
   return description;
 };
 
-const generatePhotos = () => {
+export const generatePhotos = () => {
   let photos = [];
 
   for (let i = 1; i <= getRandomInt(1, 5); i++) {
@@ -68,12 +68,12 @@ const generatePhotos = () => {
 
 export const generateEvent = () => {
   const type = getEventType();
-
   return {
     id: generateId(),
     type,
     date: generateDate(),
     price: getRandomInt(20, 650),
+    offers: generateOffers(type),
     destination: {
       city: generateCity(),
       description: generateDescription(),

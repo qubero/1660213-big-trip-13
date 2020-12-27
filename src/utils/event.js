@@ -30,16 +30,24 @@ export const humanizeEventDuration = (eventDuration) => {
 };
 
 export const getOffers = (type) => {
-  let currentOffers = [];
-  const possibleOffers = OFFERS.filter((offer) => offer.type === type);
+  const possibleOffers = OFFERS.find((offer) => offer.type === type);
+  const currentOffers = possibleOffers && possibleOffers.offers || [];
 
-  for (let offer of possibleOffers) {
-    currentOffers.push({
-      name: offer.name,
-      title: offer.title,
-      price: offer.price,
-      isChecked: Boolean(getRandomInt(0, 1))
-    });
+  return currentOffers;
+};
+
+export const generateOffers = (type) => {
+  let currentOffers = [];
+  const possibleOffers = OFFERS.find((offer) => offer.type === type);
+
+  if (possibleOffers && possibleOffers.offers) {
+    for (let offer of possibleOffers.offers) {
+      currentOffers.push({
+        title: offer.title,
+        price: offer.price,
+        isChecked: Boolean(getRandomInt(0, 1))
+      });
+    }
   }
 
   return currentOffers;
