@@ -2,6 +2,9 @@ import {getOffers, humanizeDate} from "../utils/event.js";
 import {CITIES, EVENT_TYPES} from "../mock/const.js";
 import SmartView from "./smart";
 import {generateDescription, generatePhotos} from "../mock/event.js";
+import flatpickr from "flatpickr";
+
+import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 
 const BLANK_EVENT = {
   type: EVENT_TYPES[0],
@@ -14,6 +17,12 @@ const BLANK_EVENT = {
     photos: []
   },
   isFavorite: false
+};
+
+const flatpickrInitSettings = {
+  enableTime: true,
+  [`time_24hr`]: true,
+  dateFormat: `d/m/y H:i`,
 };
 
 const createEventTypesTemplate = (types) => {
@@ -89,6 +98,8 @@ export const createEventEditTemplate = (data = {}) => {
   const offersTemplate = isOffers ? createEventOffersTemplate(offers, type) : ``;
   const destinationTemplate = createEventDestinationTemplate(destination, isPhotos, isDescription);
 
+  const isSubmitDidabled = !date.start || !date.end;
+
   return `<li class="trip-events__item">
     <form class="event event--edit" action="#" method="post">
       <header class="event__header">
@@ -119,10 +130,10 @@ export const createEventEditTemplate = (data = {}) => {
 
         <div class="event__field-group  event__field-group--time">
           <label class="visually-hidden" for="event-start-time-1">From</label>
-          <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${date ? humanizeDate(date.start, `DD/MM/YY HH:mm`) : ``}">
+          <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${date && date.start ? humanizeDate(date.start, `DD/MM/YY HH:mm`) : ``}">
           &mdash;
           <label class="visually-hidden" for="event-end-time-1">To</label>
-          <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${date ? humanizeDate(date.end, `DD/MM/YY HH:mm`) : ``}">
+          <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${date && date.end ? humanizeDate(date.end, `DD/MM/YY HH:mm`) : ``}">
         </div>
 
         <div class="event__field-group  event__field-group--price">
@@ -130,10 +141,10 @@ export const createEventEditTemplate = (data = {}) => {
             <span class="visually-hidden">Price</span>
             &euro;
           </label>
-          <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${price || ``}">
+          <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${price || ``}" required>
         </div>
 
-        <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
+        <button class="event__save-btn  btn  btn--blue" type="submit" ${isSubmitDidabled ? `disabled` : ``}>Save</button>
         <button class="event__reset-btn" type="reset">${!type ? `Cancel` : `Delete`}</button>
         <button class="event__rollup-btn" type="button">
           <span class="visually-hidden">Open event</span>
@@ -152,18 +163,20 @@ export default class EventEditView extends SmartView {
   constructor(event = BLANK_EVENT) {
     super();
     this._data = EventEditView.parseEventToData(event);
+    this._startDatepicker = null;
+    this._endDatepicker = null;
 
     this._rollupClickHandler = this._rollupClickHandler.bind(this);
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
 
     this._eventTypeSelectHandler = this._eventTypeSelectHandler.bind(this);
     this._eventDestinationChangeHandler = this._eventDestinationChangeHandler.bind(this);
-    // N.B. Реализовать во второй части дз вместо с подключением библиотек
-    // this._startDateChangeHandler = this._startDateChangeHandler.bind(this);
-    // this._endDateChangeHandler = this._endDateChangeHandler.bind(this);
+    this._startDateChangeHandler = this._startDateChangeHandler.bind(this);
+    this._endDateChangeHandler = this._endDateChangeHandler.bind(this);
     this._priceInputHandler = this._priceInputHandler.bind(this);
 
     this._setInnerHandllers();
+    this._setDatepickers();
   }
 
   reset(event) {
@@ -178,8 +191,47 @@ export default class EventEditView extends SmartView {
 
   restoreHandlers() {
     this._setInnerHandllers();
+    this._setDatepickers();
     this.setRollupClickHandler(this._callback.rollupClick);
     this.setFormSubmitHandler(this._callback.formSubmit);
+  }
+
+  _setDatepickers() {
+    if (this._startDatepicker) {
+      this._startDatepicker.destroy();
+      this._startDatepicker = null;
+    }
+
+    if (this._endDatepicker) {
+      this._endDatepicker.destroy();
+      this._endDatepicker = null;
+    }
+
+    this._startDatepicker = flatpickr(
+        this.getElement().querySelector(`#event-start-time-1`),
+        Object.assign(
+            {},
+            flatpickrInitSettings,
+            {
+              minDate: Date.now(),
+              defaultDate: this._data.date.start,
+              onChange: this._startDateChangeHandler
+            }
+        )
+    );
+
+    this._endDatepicker = flatpickr(
+        this.getElement().querySelector(`#event-end-time-1`),
+        Object.assign(
+            {},
+            flatpickrInitSettings,
+            {
+              minDate: this._data.date.start,
+              defaultDate: this._data.date.end,
+              onChange: this._endDateChangeHandler
+            }
+        )
+    );
   }
 
   _setInnerHandllers() {
@@ -237,10 +289,30 @@ export default class EventEditView extends SmartView {
     });
   }
 
+  _startDateChangeHandler([userDate]) {
+    const newEndDate = userDate > this._data.date.end ? `` : this._data.date.end;
+
+    this.updateData({
+      date: {
+        start: userDate,
+        end: newEndDate
+      }
+    });
+  }
+
+  _endDateChangeHandler([userDate]) {
+    this.updateData({
+      date: {
+        start: this._data.date.start,
+        end: userDate
+      }
+    });
+  }
+
   _priceInputHandler(evt) {
     evt.preventDefault();
     this.updateData({
-      price: evt.target.value
+      price: parseInt(evt.target.value, 10)
     }, true);
   }
 

@@ -21,16 +21,16 @@ const createEventTemplate = (event) => {
 
   return `<li class="trip-events__item">
     <div class="event">
-      <time class="event__date" datetime="${humanizeDate(date.start, `YYYY-MM-DD`)}">${humanizeDate(date.start, `MMM-DD`)}</time>
+      <time class="event__date" datetime="${date && date.start ? humanizeDate(date.start, `YYYY-MM-DD`) : ``}">${date && date.start ? humanizeDate(date.start, `MMM-DD`) : ``}</time>
       <div class="event__type">
         <img class="event__type-icon" width="42" height="42" src="img/icons/${type.toLowerCase()}.png" alt="Event type icon">
       </div>
       <h3 class="event__title">${type + ` ` + destination.city}</h3>
       <div class="event__schedule">
         <p class="event__time">
-          <time class="event__start-time" datetime="${humanizeDate(date.start, `YYYY-MM-DDTHH:mm`)}">${humanizeDate(date.start, `HH:mm`)}</time>
+          <time class="event__start-time" datetime="${date && date.start ? humanizeDate(date.start, `YYYY-MM-DDTHH:mm`) : ``}">${date && date.start ? humanizeDate(date.start, `HH:mm`) : ``}</time>
           &mdash;
-          <time class="event__end-time" datetime="${humanizeDate(date.end, `YYYY-MM-DDTHH:mm`)}">${humanizeDate(date.end, `HH:mm`)}</time>
+          <time class="event__end-time" datetime="${date && date.end ? humanizeDate(date.end, `YYYY-MM-DDTHH:mm`) : ``}">${date && date.end ? humanizeDate(date.end, `HH:mm`) : ``}</time>
         </p>
         <p class="event__duration">${humanizedEventDuration}</p>
       </div>
