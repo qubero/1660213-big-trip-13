@@ -1,6 +1,11 @@
 export const EVENT_TYPES = [`taxi`, `bus`, `train`, `ship`, `transport`, `drive`, `flight`, `check-in`, `sightseeing`, `restaurant`];
 export const CITIES = [`Amsterdam`, `Chamonix`, `Geneva`];
-export const FILTERS = [`Everything`, `Future`, `Past`];
+
+export const FILTERS = {
+  ALL: `everything`,
+  FUTURE: `future`,
+  PAST: `past`
+};
 
 export const SORT_TYPES = {
   DAY: {name: `Day`, isSortable: true},
@@ -43,3 +48,15 @@ export const OFFERS = [
     ]
   }
 ];
+
+export const UserAction = {
+  UPDATE_EVENT: `UPDATE_EVENT`,
+  ADD_EVENT: `ADD_EVENT`,
+  DELETE_EVENT: `DELETE_EVENT`
+};
+
+export const UpdateType = {
+  PATCH: `PATCH`,
+  MINOR: `MINOR`,
+  MAJOR: `MAJOR`
+};
