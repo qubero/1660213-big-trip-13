@@ -1,21 +1,30 @@
 import {SORT_TYPES} from "../mock/const";
 import AbstractView from "./abstract";
 
-const createSortsTemplate = (sortTypes) => {
+const createSortsTemplate = (sortTypes, currentSortType) => {
   return Object.values(sortTypes).map((sortType) => {
     const sortTypeNameToLowerCase = sortType.name.toLowerCase();
 
     return (
       `<div class="trip-sort__item  trip-sort__item--${sortTypeNameToLowerCase}">
-        <input id="sort-${sortTypeNameToLowerCase}" data-sort-type="${sortType.name}" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-${sortTypeNameToLowerCase}" ${!sortType.isSortable ? `disabled` : ``}>
+        <input
+          id="sort-${sortTypeNameToLowerCase}"
+          data-sort-type="${sortType.name}"
+          class="trip-sort__input  visually-hidden"
+          type="radio"
+          name="trip-sort"
+          value="sort-${sortTypeNameToLowerCase}"
+          ${sortType.name === currentSortType ? `checked` : ``}
+          ${!sortType.isSortable ? `disabled` : ``}
+        />
         <label class="trip-sort__btn" for="sort-${sortTypeNameToLowerCase}">${sortType.name}</label>
       </div>`
     );
   }).join(``);
 };
 
-const createTripSortTemplate = () => {
-  const sortTemplate = createSortsTemplate(SORT_TYPES);
+const createTripSortTemplate = (currentSortType) => {
+  const sortTemplate = createSortsTemplate(SORT_TYPES, currentSortType);
 
   return `<form class="trip-events__trip-sort  trip-sort" action="#" method="get">
     ${sortTemplate}
@@ -23,14 +32,15 @@ const createTripSortTemplate = () => {
 };
 
 export default class TripSortView extends AbstractView {
-  constructor() {
+  constructor(sortType) {
     super();
 
+    this._currentSortType = sortType;
     this._sortTypeChangeHandler = this._sortTypeChangeHandler.bind(this);
   }
 
   getTemplate() {
-    return createTripSortTemplate();
+    return createTripSortTemplate(this._currentSortType);
   }
 
   _sortTypeChangeHandler(evt) {

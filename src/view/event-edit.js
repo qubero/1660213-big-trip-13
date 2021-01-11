@@ -1,7 +1,7 @@
 import {getOffers, humanizeDate} from "../utils/event.js";
 import {CITIES, EVENT_TYPES} from "../mock/const.js";
-import SmartView from "./smart";
 import {generateDescription, generatePhotos} from "../mock/event.js";
+import SmartView from "./smart";
 import flatpickr from "flatpickr";
 
 import "../../node_modules/flatpickr/dist/flatpickr.min.css";
@@ -10,11 +10,11 @@ const BLANK_EVENT = {
   type: EVENT_TYPES[0],
   date: null,
   price: null,
-  offers: [],
+  offers: getOffers(EVENT_TYPES[0]),
   destination: {
-    city: null,
-    description: null,
-    photos: []
+    city: ``,
+    description: generateDescription(),
+    photos: generatePhotos()
   },
   isFavorite: false
 };
@@ -90,15 +90,14 @@ const createEventDestinationTemplate = (destination, isPhotos, isDescription) =>
 };
 
 export const createEventEditTemplate = (data = {}) => {
-  const {type, offers, destination, price, date, isOffers, isPhotos, isDescription} = data;
-  const currentType = !type ? EVENT_TYPES[0] : type;
+  const {type, offers, destination, price, date, isOffers, isPhotos, isDescription, isNew} = data;
 
   const typesTemplate = createEventTypesTemplate(EVENT_TYPES);
   const citiesTemplate = createEventCitiesTemplate(CITIES);
   const offersTemplate = isOffers ? createEventOffersTemplate(offers, type) : ``;
   const destinationTemplate = createEventDestinationTemplate(destination, isPhotos, isDescription);
 
-  const isSubmitDidabled = !date.start || !date.end;
+  const isSubmitDisabled = date ? (!date.start || !date.end || !price || !destination.city) : true;
 
   return `<li class="trip-events__item">
     <form class="event event--edit" action="#" method="post">
@@ -106,7 +105,7 @@ export const createEventEditTemplate = (data = {}) => {
         <div class="event__type-wrapper">
           <label class="event__type  event__type-btn" for="event-type-toggle-1">
             <span class="visually-hidden">Choose event type</span>
-            <img class="event__type-icon" width="17" height="17" src="img/icons/${currentType.toLowerCase()}.png" alt="Event type icon">
+            <img class="event__type-icon" width="17" height="17" src="img/icons/${type.toLowerCase()}.png" alt="Event type icon">
           </label>
           <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
@@ -120,7 +119,7 @@ export const createEventEditTemplate = (data = {}) => {
 
         <div class="event__field-group  event__field-group--destination">
           <label class="event__label  event__type-output" for="event-destination-1">
-            ${currentType}
+            ${type}
           </label>
           <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination ? destination.city : ``}" list="destination-list-1">
           <datalist id="destination-list-1">
@@ -141,12 +140,12 @@ export const createEventEditTemplate = (data = {}) => {
             <span class="visually-hidden">Price</span>
             &euro;
           </label>
-          <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${price || ``}" required>
+          <input class="event__input  event__input--price" id="event-price-1" type="number" min="0" name="event-price" value="${price || ``}" required>
         </div>
 
-        <button class="event__save-btn  btn  btn--blue" type="submit" ${isSubmitDidabled ? `disabled` : ``}>Save</button>
-        <button class="event__reset-btn" type="reset">${!type ? `Cancel` : `Delete`}</button>
-        <button class="event__rollup-btn" type="button">
+        <button class="event__save-btn  btn  btn--blue" type="submit" ${isSubmitDisabled ? `disabled` : ``}>Save</button>
+        <button class="event__reset-btn" type="reset">${isNew ? `Cancel` : `Delete`}</button>
+        <button class="event__rollup-btn" ${isNew ? `style="display: none!important;"` : ``} type="button">
           <span class="visually-hidden">Open event</span>
         </button>
       </header>
@@ -160,14 +159,15 @@ export const createEventEditTemplate = (data = {}) => {
 };
 
 export default class EventEditView extends SmartView {
-  constructor(event = BLANK_EVENT) {
+  constructor(event = BLANK_EVENT, isNew = false) {
     super();
-    this._data = EventEditView.parseEventToData(event);
+    this._data = Object.assign({}, EventEditView.parseEventToData(event), {isNew});
     this._startDatepicker = null;
     this._endDatepicker = null;
 
     this._rollupClickHandler = this._rollupClickHandler.bind(this);
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
+    this._formDeleteClickHandler = this._formDeleteClickHandler.bind(this);
 
     this._eventTypeSelectHandler = this._eventTypeSelectHandler.bind(this);
     this._eventDestinationChangeHandler = this._eventDestinationChangeHandler.bind(this);
@@ -177,6 +177,20 @@ export default class EventEditView extends SmartView {
 
     this._setInnerHandllers();
     this._setDatepickers();
+  }
+
+  removeElement() {
+    super.removeElement();
+
+    if (this._startDatepicker) {
+      this._startDatepicker.destroy();
+      this._startDatepicker = null;
+    }
+
+    if (this._endDatepicker) {
+      this._endDatepicker.destroy();
+      this._endDatepicker = null;
+    }
   }
 
   reset(event) {
@@ -194,6 +208,7 @@ export default class EventEditView extends SmartView {
     this._setDatepickers();
     this.setRollupClickHandler(this._callback.rollupClick);
     this.setFormSubmitHandler(this._callback.formSubmit);
+    this.setDeleteClickHandler(this._callback.formSubmit);
   }
 
   _setDatepickers() {
@@ -214,7 +229,7 @@ export default class EventEditView extends SmartView {
             flatpickrInitSettings,
             {
               minDate: Date.now(),
-              defaultDate: this._data.date.start,
+              defaultDate: this._data.date ? this._data.date.start : ``,
               onChange: this._startDateChangeHandler
             }
         )
@@ -226,8 +241,8 @@ export default class EventEditView extends SmartView {
             {},
             flatpickrInitSettings,
             {
-              minDate: this._data.date.start,
-              defaultDate: this._data.date.end,
+              minDate: this._data.date ? this._data.date.start : ``,
+              defaultDate: this._data.date ? this._data.date.end : ``,
               onChange: this._endDateChangeHandler
             }
         )
@@ -290,7 +305,9 @@ export default class EventEditView extends SmartView {
   }
 
   _startDateChangeHandler([userDate]) {
-    const newEndDate = userDate > this._data.date.end ? `` : this._data.date.end;
+    const newEndDate = (!this._data.date || userDate > this._data.date.end)
+      ? ``
+      : this._data.date.end;
 
     this.updateData({
       date: {
@@ -303,7 +320,7 @@ export default class EventEditView extends SmartView {
   _endDateChangeHandler([userDate]) {
     this.updateData({
       date: {
-        start: this._data.date.start,
+        start: this._data.date ? this._data.date.start : ``,
         end: userDate
       }
     });
@@ -313,7 +330,7 @@ export default class EventEditView extends SmartView {
     evt.preventDefault();
     this.updateData({
       price: parseInt(evt.target.value, 10)
-    }, true);
+    });
   }
 
   _formSubmitHandler(evt) {
@@ -336,6 +353,16 @@ export default class EventEditView extends SmartView {
   setFormSubmitHandler(callback) {
     this._callback.formSubmit = callback;
     this.getElement().querySelector(`form`).addEventListener(`submit`, this._formSubmitHandler);
+  }
+
+  _formDeleteClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.deleteClick(EventEditView.parseDataToEvent(this._data));
+  }
+
+  setDeleteClickHandler(callback) {
+    this._callback.deleteClick = callback;
+    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._formDeleteClickHandler);
   }
 
   static parseEventToData(event) {

@@ -5,7 +5,7 @@ import {sortEventsByDate, generateOffers} from "../utils/event.js";
 
 const EVENTS_COUNT = 10;
 
-const generateId = () => Date.now() + parseInt(Math.random() * 10000, 10);
+export const generateId = () => Date.now() + parseInt(Math.random() * 10000, 10);
 
 const getEventType = () => {
   const randomIndex = getRandomInt(0, EVENT_TYPES.length - 1);

@@ -59,7 +59,7 @@ export const replace = (newChild, oldChild) => {
 
 export const remove = (component) => {
   if (!(component instanceof AbstractView)) {
-    throw new Error(`Can remove only compomemts.`);
+    throw new Error(`Can remove only components.`);
   }
 
   component.getElement().remove();
