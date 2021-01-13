@@ -15,6 +15,12 @@ export const SORT_TYPES = {
   OFFERS: {name: `Offers`, isSortable: false},
 };
 
+export const MenuItem = {
+  ADD_NEW_EVENT: `ADD_NEW_EVENT`,
+  TABLE: `EVENTS`,
+  STATS: `STATS`
+};
+
 export const OFFERS = [
   {
     type: `taxi`,

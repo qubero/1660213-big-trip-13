@@ -208,7 +208,7 @@ export default class EventEditView extends SmartView {
     this._setDatepickers();
     this.setRollupClickHandler(this._callback.rollupClick);
     this.setFormSubmitHandler(this._callback.formSubmit);
-    this.setDeleteClickHandler(this._callback.formSubmit);
+    this.setDeleteClickHandler(this._callback.deleteClick);
   }
 
   _setDatepickers() {
@@ -230,7 +230,7 @@ export default class EventEditView extends SmartView {
             {
               minDate: Date.now(),
               defaultDate: this._data.date ? this._data.date.start : ``,
-              onChange: this._startDateChangeHandler
+              onClose: this._startDateChangeHandler
             }
         )
     );
@@ -243,7 +243,7 @@ export default class EventEditView extends SmartView {
             {
               minDate: this._data.date ? this._data.date.start : ``,
               defaultDate: this._data.date ? this._data.date.end : ``,
-              onChange: this._endDateChangeHandler
+              onClose: this._endDateChangeHandler
             }
         )
     );
@@ -252,13 +252,13 @@ export default class EventEditView extends SmartView {
   _setInnerHandllers() {
     this.getElement()
       .querySelector(`.event__type-group`)
-      .addEventListener(`input`, this._eventTypeSelectHandler);
+      .addEventListener(`change`, this._eventTypeSelectHandler);
     this.getElement()
       .querySelector(`.event__input--destination`)
-      .addEventListener(`input`, this._eventDestinationChangeHandler);
+      .addEventListener(`change`, this._eventDestinationChangeHandler);
     this.getElement()
       .querySelector(`.event__input--price`)
-      .addEventListener(`input`, this._priceInputHandler);
+      .addEventListener(`blur`, this._priceInputHandler);
   }
 
   _rollupClickHandler(evt) {
