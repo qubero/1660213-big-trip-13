@@ -4,7 +4,7 @@ import NoEventsView from "../view/no-events";
 import TripEventPresenter from "./trip-event";
 import TripEventNewPresenter from "./trip-event-new";
 import {render, RenderPosition, remove} from "../utils/render";
-import {SORT_TYPES, UserAction, UpdateType, FILTERS} from "../mock/const";
+import {SORT_TYPES, UserAction, UpdateType} from "../mock/const";
 import {sortEventsByPrice, sortEventsByDuration, sortEventsByDate} from "../utils/event";
 import {filter} from "../utils/filter";
 
@@ -27,19 +27,26 @@ export default class Trip {
     this._handleModeChange = this._handleModeChange.bind(this);
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
 
-    this._eventsModel.addObserver(this._handleModelEvent);
-    this._filterModel.addObserver(this._handleModelEvent);
-
     this._eventNewPresenter = new TripEventNewPresenter(this._EventsComponent, this._handleViewAction);
   }
 
   init() {
+    this._eventsModel.addObserver(this._handleModelEvent);
+    this._filterModel.addObserver(this._handleModelEvent);
+
     this._renderTrip();
   }
 
+  destroy() {
+    this._clearTrip({resetSortType: true});
+
+    remove(this._EventsComponent);
+
+    this._eventsModel.removeObserver(this._handleModelEvent);
+    this._filterModel.removeObserver(this._handleModelEvent);
+  }
+
   createEvent() {
-    this._currentSortType = SORT_TYPES.DAY.name;
-    this._filterModel.setFilter(UpdateType.MAJOR, FILTERS.ALL);
     this._eventNewPresenter.init();
   }
 

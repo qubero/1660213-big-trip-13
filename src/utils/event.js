@@ -12,15 +12,23 @@ export const getEventDuration = (dateStart, dateEnd) => {
   return dayjs(dateEnd).diff(dayjs(dateStart));
 };
 
+const addZero = (num) => {
+  return (num < 10 ? `0${num}` : `${num}`);
+};
+
+export const humanizeEventDurationDays = (eventDuration) => {
+  const currentDuration = dayjs.duration(eventDuration);
+  const days = currentDuration.days();
+  const hours = currentDuration.hours();
+
+  return (days > 0 ? `${addZero(days)}D` : `${addZero(hours)}H`);
+};
+
 export const humanizeEventDuration = (eventDuration) => {
   const currentDuration = dayjs.duration(eventDuration);
   const days = currentDuration.days();
   const hours = currentDuration.hours();
   const minutes = currentDuration.minutes();
-
-  const addZero = (num) => {
-    return (num < 10 ? `0${num}` : `${num}`);
-  };
 
   return (
     `${(days > 0 && addZero(days) + `D`) || ``}
