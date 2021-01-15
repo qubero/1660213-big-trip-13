@@ -25,7 +25,12 @@ const getTripDates = (events) => {
 const createTripInfoTemplate = (events) => {
   const tripTitle = getTripTitle(events);
   const tripDates = getTripDates(events);
-  const totalCost = events.reduce((total, curEvnt) => total + curEvnt.price, 0);
+
+  const totalCost = events.reduce((total, event) => {
+    const offersPrice = Object.values(event.offers).reduce(((offersTotal, offer) => offersTotal + offer.price), 0);
+
+    return total + offersPrice + event.price;
+  }, 0);
 
   return `<section class="trip-main__trip-info  trip-info">
     <div class="trip-info__main">

@@ -1,4 +1,4 @@
-import {FILTERS} from "../mock/const";
+import {FILTERS} from "../const.js";
 
 export const filter = {
   [FILTERS.ALL]: (events) => events,

@@ -1,7 +1,7 @@
-import {render, RenderPosition, replace, remove} from "../utils/render";
-import FiltersView from "../view/filters";
-import {UpdateType, FILTERS} from "../mock/const";
-import {filter} from "../utils/filter";
+import {render, RenderPosition, replace, remove} from "../utils/render.js";
+import FiltersView from "../view/filters.js";
+import {UpdateType, FILTERS} from "../const.js";
+import {filter} from "../utils/filter.js";
 
 export default class Filter {
   constructor(filterContainer, filterModel, eventsModel) {

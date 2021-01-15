@@ -1,6 +1,6 @@
 import Chart from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
-import {getEventDuration, humanizeEventDurationDays} from "./event";
+import {getEventDuration, humanizeEventDurationDays} from "./event.js";
 
 export const renderMoneyChart = (moneyCtx, events, labels) => {
   const typesPrice = labels.map((label) => {

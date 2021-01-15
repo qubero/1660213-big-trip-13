@@ -1,25 +1,32 @@
-import TripSortView from "../view/trip-sort";
-import EventsListView from "../view/events-list";
-import NoEventsView from "../view/no-events";
-import TripEventPresenter from "./trip-event";
-import TripEventNewPresenter from "./trip-event-new";
-import {render, RenderPosition, remove} from "../utils/render";
-import {SORT_TYPES, UserAction, UpdateType} from "../mock/const";
-import {sortEventsByPrice, sortEventsByDuration, sortEventsByDate} from "../utils/event";
-import {filter} from "../utils/filter";
+import TripSortView from "../view/trip-sort.js";
+import EventsListView from "../view/events-list.js";
+import NoEventsView from "../view/no-events.js";
+import TripEventPresenter, {State as TripEventPresenterViewState} from "./trip-event.js";
+import TripEventNewPresenter from "./trip-event-new.js";
+import {render, RenderPosition, remove} from "../utils/render.js";
+import {SORT_TYPES, UserAction, UpdateType} from "../const.js";
+import {sortEventsByPrice, sortEventsByDuration, sortEventsByDate} from "../utils/event.js";
+import {filter} from "../utils/filter.js";
+import LoadingView from "../view/loading.js";
 
 export default class Trip {
-  constructor(tripContainer, eventsModel, filterModel) {
+  constructor(tripContainer, eventsModel, filterModel, offersModel, destinationsModel, api) {
     this._eventsModel = eventsModel;
     this._filterModel = filterModel;
+    this._offersModel = offersModel;
+    this._destinationsModel = destinationsModel;
+
     this._tripContainer = tripContainer;
     this._eventPresenter = {};
     this._currentSortType = SORT_TYPES.DAY.name;
+    this._isLoading = true;
+    this._api = api;
 
     this._tripEventsContainer = tripContainer.querySelector(`.trip-events`);
     this._tripSortComponent = null;
-    this._EventsComponent = new EventsListView();
+    this._eventsComponent = new EventsListView();
     this._noEventsComponent = new NoEventsView();
+    this._loadingComponent = new LoadingView();
 
     this._handleViewAction = this._handleViewAction.bind(this);
     this._handleModelEvent = this._handleModelEvent.bind(this);
@@ -27,7 +34,7 @@ export default class Trip {
     this._handleModeChange = this._handleModeChange.bind(this);
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
 
-    this._eventNewPresenter = new TripEventNewPresenter(this._EventsComponent, this._handleViewAction);
+    this._eventNewPresenter = new TripEventNewPresenter(this._eventsComponent, this._handleViewAction, offersModel, destinationsModel);
   }
 
   init() {
@@ -40,7 +47,7 @@ export default class Trip {
   destroy() {
     this._clearTrip({resetSortType: true});
 
-    remove(this._EventsComponent);
+    remove(this._eventsComponent);
 
     this._eventsModel.removeObserver(this._handleModelEvent);
     this._filterModel.removeObserver(this._handleModelEvent);
@@ -76,13 +83,34 @@ export default class Trip {
   _handleViewAction(actionType, updateType, update) {
     switch (actionType) {
       case UserAction.UPDATE_EVENT:
-        this._eventsModel.updateEvent(updateType, update);
+        this._eventPresenter[update.id].setViewState(TripEventPresenterViewState.SAVING);
+        this._api.updateEvent(update)
+          .then((response) => {
+            this._eventsModel.updateEvent(updateType, response);
+          })
+          .catch(() => {
+            this._eventPresenter[update.id].setViewState(TripEventPresenterViewState.ABORTING);
+          });
         break;
       case UserAction.ADD_EVENT:
-        this._eventsModel.addEvent(updateType, update);
+        this._eventNewPresenter.setSaving();
+        this._api.addEvent(update)
+          .then((response) => {
+            this._eventsModel.addEvent(updateType, response);
+          })
+          .catch(() => {
+            this._eventNewPresenter.setAborting();
+          });
         break;
       case UserAction.DELETE_EVENT:
-        this._eventsModel.deleteEvent(updateType, update);
+        this._eventPresenter[update.id].setViewState(TripEventPresenterViewState.DELETING);
+        this._api.deleteEvent(update)
+          .then(() => {
+            this._eventsModel.deleteEvent(updateType, update);
+          })
+          .catch(() => {
+            this._eventPresenter[update.id].setViewState(TripEventPresenterViewState.ABORTING);
+          });
         break;
     }
   }
@@ -98,6 +126,11 @@ export default class Trip {
         break;
       case UpdateType.MAJOR:
         this._clearTrip({resetSortType: true});
+        this._renderTrip();
+        break;
+      case UpdateType.INIT:
+        this._isLoading = false;
+        remove(this._loadingComponent);
         this._renderTrip();
         break;
     }
@@ -116,9 +149,15 @@ export default class Trip {
   _renderTrip() {
     const tripEvents = this._getEvents().slice();
 
+    if (this._isLoading) {
+      this._renderLoading();
+      return;
+    }
+
     if (!tripEvents.length) {
       this._renderNoEvents();
     } else {
+      remove(this._noEventsComponent);
       this._renderTripSort();
       this._renderEvents(tripEvents);
     }
@@ -136,7 +175,14 @@ export default class Trip {
   }
 
   _renderEvent(event) {
-    const eventPresenter = new TripEventPresenter(this._EventsComponent, this._handleViewAction, this._handleModeChange);
+    const eventPresenter = new TripEventPresenter(
+        this._eventsComponent,
+        this._handleViewAction,
+        this._handleModeChange,
+        this._offersModel,
+        this._destinationsModel
+    );
+
     eventPresenter.init(event);
     this._eventPresenter[event.id] = eventPresenter;
   }
@@ -154,6 +200,7 @@ export default class Trip {
       remove(this._tripSortComponent);
     }
 
+    remove(this._loadingComponent);
     remove(this._noEventsComponent);
 
     if (resetSortType) {
@@ -162,9 +209,13 @@ export default class Trip {
   }
 
   _renderEvents(events) {
-    render(this._tripEventsContainer, this._EventsComponent, RenderPosition.BEFOREEND);
+    render(this._tripEventsContainer, this._eventsComponent, RenderPosition.BEFOREEND);
 
     events.forEach((event) => this._renderEvent(event));
+  }
+
+  _renderLoading() {
+    render(this._tripEventsContainer, this._loadingComponent, RenderPosition.AFTERBEGIN);
   }
 
   _renderNoEvents() {
