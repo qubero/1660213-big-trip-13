@@ -1,4 +1,5 @@
 import Observer from "../utils/observer.js";
+import dayjs from "dayjs";
 
 export default class Events extends Observer {
   constructor() {
@@ -6,8 +7,10 @@ export default class Events extends Observer {
     this._events = [];
   }
 
-  setEvents(events) {
+  setEvents(updateType, events) {
     this._events = events.slice();
+
+    this._notify(updateType);
   }
 
   getEvents() {
@@ -52,5 +55,60 @@ export default class Events extends Observer {
     ];
 
     this._notify(updateType);
+  }
+
+  static adaptToClient(event) {
+    const adaptedEvent = Object.assign(
+        {},
+        event,
+        {
+          date: {
+            start: dayjs(event.date_from).toDate(),
+            end: dayjs(event.date_to).toDate()
+          },
+          price: event.base_price,
+          destination: {
+            city: event.destination.name,
+            description: event.destination.description,
+            photos: event.destination.pictures
+          },
+          isFavorite: event.is_favorite
+        }
+    );
+
+    delete adaptedEvent.base_price;
+    delete adaptedEvent.date_from;
+    delete adaptedEvent.date_to;
+    delete adaptedEvent.destination.name;
+    delete adaptedEvent.destination.pictures;
+    delete adaptedEvent.is_favorite;
+
+    return adaptedEvent;
+  }
+
+  static adaptToServer(event) {
+    const adaptedEvent = Object.assign(
+        {},
+        event,
+        {
+          [`date_from`]: event.date.start.toISOString(),
+          [`date_to`]: event.date.end.toISOString(),
+          [`base_price`]: event.price,
+          destination: {
+            name: event.destination.city,
+            description: event.destination.description,
+            pictures: event.destination.photos
+          },
+          [`is_favorite`]: event.isFavorite
+        }
+    );
+
+    delete adaptedEvent.price;
+    delete adaptedEvent.date;
+    delete adaptedEvent.destination.city;
+    delete adaptedEvent.destination.photos;
+    delete adaptedEvent.isFavorite;
+
+    return adaptedEvent;
   }
 }
