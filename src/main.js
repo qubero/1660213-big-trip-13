@@ -1,5 +1,5 @@
-import {render, RenderPosition, remove} from "./utils/render.js";
 import {MenuItem, UpdateType, FILTERS} from "./const.js";
+import {render, RenderPosition, remove} from "./utils/render.js";
 
 import EventsModel from "./model/events.js";
 import FilterModel from "./model/filter.js";
