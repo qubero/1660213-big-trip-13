@@ -1,7 +1,5 @@
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
-import {OFFERS} from "../mock/const.js";
-import {getRandomInt} from "./common.js";
 dayjs.extend(duration);
 
 export const humanizeDate = (date, format) => {
@@ -37,26 +35,9 @@ export const humanizeEventDuration = (eventDuration) => {
   );
 };
 
-export const getOffers = (type) => {
-  const possibleOffers = OFFERS.find((offer) => offer.type === type);
+export const getOffersByType = (offers, type) => {
+  const possibleOffers = offers.find((offer) => offer.type === type);
   const currentOffers = possibleOffers && possibleOffers.offers || [];
-
-  return currentOffers;
-};
-
-export const generateOffers = (type) => {
-  let currentOffers = [];
-  const possibleOffers = OFFERS.find((offer) => offer.type === type);
-
-  if (possibleOffers && possibleOffers.offers) {
-    for (let offer of possibleOffers.offers) {
-      currentOffers.push({
-        title: offer.title,
-        price: offer.price,
-        isChecked: Boolean(getRandomInt(0, 1))
-      });
-    }
-  }
 
   return currentOffers;
 };

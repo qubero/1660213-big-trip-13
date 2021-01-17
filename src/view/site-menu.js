@@ -1,5 +1,5 @@
-import AbstractView from "./abstract";
-import {MenuItem} from "../mock/const";
+import AbstractView from "./abstract.js";
+import {MenuItem} from "../const.js";
 
 const createSiteMenuTemplate = () => {
   return `<div>

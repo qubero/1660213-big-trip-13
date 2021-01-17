@@ -1,5 +1,5 @@
-import {SORT_TYPES} from "../mock/const";
-import AbstractView from "./abstract";
+import {SORT_TYPES} from "../const.js";
+import AbstractView from "./abstract.js";
 
 const createSortsTemplate = (sortTypes, currentSortType) => {
   return Object.values(sortTypes).map((sortType) => {

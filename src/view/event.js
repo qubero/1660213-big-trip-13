@@ -1,15 +1,13 @@
 import {getEventDuration, humanizeEventDuration, humanizeDate} from "../utils/event.js";
-import AbstractView from "./abstract";
+import AbstractView from "./abstract.js";
 
 const createEventOffersTemplate = (offers) => {
   return offers.map((offer) => (
-    offer.isChecked ?
-      `<li class="event__offer">
-        <span class="event__offer-title">${offer.title}</span>
-        &plus;&euro;&nbsp;
-        <span class="event__offer-price">${offer.price}</span>
-      </li>`
-      : ``
+    `<li class="event__offer">
+      <span class="event__offer-title">${offer.title}</span>
+      &plus;&euro;&nbsp;
+      <span class="event__offer-price">${offer.price}</span>
+    </li>`
   )).join(``);
 };
 

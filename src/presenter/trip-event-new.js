@@ -1,12 +1,13 @@
-import EventEditView from "../view/event-edit";
-import {render, RenderPosition, remove} from "../utils/render";
-import {UserAction, UpdateType} from "../mock/const";
-import {generateId} from "../mock/event";
+import EventEditView from "../view/event-edit.js";
+import {render, RenderPosition, remove} from "../utils/render.js";
+import {UserAction, UpdateType} from "../const.js";
 
 export default class TripEventNew {
-  constructor(eventsListContainer, changeData) {
+  constructor(eventsListContainer, changeData, offersModel, destinationsModel) {
     this._eventsListContainer = eventsListContainer;
     this._changeData = changeData;
+    this._offersModel = offersModel;
+    this._destinationsModel = destinationsModel;
 
     this._eventEditComponent = null;
 
@@ -20,7 +21,7 @@ export default class TripEventNew {
       return;
     }
 
-    this._eventEditComponent = new EventEditView(event, true);
+    this._eventEditComponent = new EventEditView(event, this._offersModel, this._destinationsModel, true);
     this._eventEditComponent.setFormSubmitHandler(this._handleFormSubmit);
     this._eventEditComponent.setDeleteClickHandler(this._handleDeleteClick);
 
@@ -40,13 +41,31 @@ export default class TripEventNew {
     document.removeEventListener(`keydown`, this._escKeyDownHandler);
   }
 
+  setSaving() {
+    this._eventEditComponent.updateData({
+      isDisabled: true,
+      isSaving: true
+    });
+  }
+
+  setAborting() {
+    const resetFormState = () => {
+      this._eventEditComponent.updateData({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false
+      });
+    };
+
+    this._eventEditComponent.shake(resetFormState);
+  }
+
   _handleFormSubmit(event) {
     this._changeData(
         UserAction.ADD_EVENT,
         UpdateType.MINOR,
-        Object.assign({id: generateId()}, event)
+        event
     );
-    this.destroy();
   }
 
   _handleDeleteClick() {

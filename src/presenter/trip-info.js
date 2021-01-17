@@ -1,6 +1,6 @@
-import {render, RenderPosition, remove} from "../utils/render";
-import TripInfoView from "../view/trip-info";
-import {sortEventsByDate} from "../utils/event";
+import {render, RenderPosition, remove} from "../utils/render.js";
+import TripInfoView from "../view/trip-info.js";
+import {sortEventsByDate} from "../utils/event.js";
 
 export default class TripInfo {
   constructor(tripInfoContainer, eventsModel) {
