@@ -1,5 +1,7 @@
 import {MenuItem, UpdateType, FILTERS} from "./const.js";
 import {render, RenderPosition, remove} from "./utils/render.js";
+import {toast} from "./utils/toast/toast.js";
+import {isOnline} from "./utils/common.js";
 
 import EventsModel from "./model/events.js";
 import FilterModel from "./model/filter.js";
@@ -13,12 +15,19 @@ import TripEventsPresenter from "./presenter/trip.js";
 import TripInfoPresenter from "./presenter/trip-info.js";
 import FilterPresenter from "./presenter/filter.js";
 
-import Api from "./api.js";
+import Api from "./api/api.js";
+import Store from "./api/store.js";
+import Provider from "./api/provider.js";
 
 const AUTHORIZATION = `Basic ef090wi25k8998a`;
 const END_POINT = `https://13.ecmascript.pages.academy/big-trip`;
+const STORE_PREFIX = `big-trip-localstorage`;
+const STORE_VER = `v1`;
+const STORE_NAME = `${STORE_PREFIX}-${STORE_VER}`;
 
 const api = new Api(END_POINT, AUTHORIZATION);
+const store = new Store(STORE_NAME, window.localStorage);
+const apiWithProvider = new Provider(api, store);
 
 const eventsModel = new EventsModel();
 const filterModel = new FilterModel();
@@ -33,7 +42,7 @@ const siteMenuComponent = new SiteMenuView();
 
 const tripInfoPresenter = new TripInfoPresenter(tripMainElement, eventsModel);
 const filterPresenter = new FilterPresenter(сontrolsElement, filterModel, eventsModel);
-const tripEventsPresenter = new TripEventsPresenter(siteMainElement, eventsModel, filterModel, offersModel, destinationsModel, api);
+const tripEventsPresenter = new TripEventsPresenter(siteMainElement, eventsModel, filterModel, offersModel, destinationsModel, apiWithProvider);
 
 let statsComponent = null;
 
@@ -47,6 +56,10 @@ const handleSiteMenuClick = (menuItem) => {
         tripEventsPresenter.init();
       } else {
         filterModel.setFilter(UpdateType.MAJOR, FILTERS.ALL);
+      }
+      if (!isOnline()) {
+        toast(`You can't create new event offline`);
+        break;
       }
       siteMenuComponent.setMenuItem(MenuItem.TABLE);
       tripEventsPresenter.createEvent();
@@ -69,9 +82,9 @@ tripEventsPresenter.init();
 
 Promise
   .all([
-    api.getEvents(),
-    api.getOffers(),
-    api.getDestinations()
+    apiWithProvider.getEvents(),
+    isOnline() ? api.getOffers() : Promise.resolve([]),
+    isOnline() ? api.getDestinations() : Promise.resolve([])
   ])
   .then(([events, offers, destinations]) => {
     offersModel.setOffers(offers);
@@ -91,4 +104,21 @@ Promise
 document.querySelector(`.trip-main__event-add-btn`).addEventListener(`click`, (evt) => {
   evt.preventDefault();
   handleSiteMenuClick(MenuItem.ADD_NEW_EVENT);
+});
+
+window.addEventListener(`load`, () => {
+  navigator.serviceWorker.register(`/sw.js`);
+
+  if (!isOnline()) {
+    document.title += ` [offline]`;
+  }
+});
+
+window.addEventListener(`online`, () => {
+  document.title = document.title.replace(` [offline]`, ``);
+  apiWithProvider.sync();
+});
+
+window.addEventListener(`offline`, () => {
+  document.title += ` [offline]`;
 });

@@ -2,6 +2,8 @@ import EventView from "../view/event.js";
 import EventEditView from "../view/event-edit.js";
 import {render, RenderPosition, replace, remove} from "../utils/render.js";
 import {UserAction, UpdateType} from "../const.js";
+import {toast} from "../utils/toast/toast.js";
+import {isOnline} from "../utils/common.js";
 
 const Mode = {
   DEFAULT: `DEFAULT`,
@@ -122,6 +124,11 @@ export default class TripEvent {
   }
 
   _handleEditClick() {
+    if (!isOnline()) {
+      toast(`You can't edit event offline`);
+      return;
+    }
+
     this._replacePointToForm();
   }
 
@@ -144,6 +151,11 @@ export default class TripEvent {
   }
 
   _handleFormSubmit(event) {
+    if (!isOnline()) {
+      toast(`You can't save event offline`);
+      return;
+    }
+
     this._changeData(
         UserAction.UPDATE_EVENT,
         UpdateType.MINOR,
@@ -152,6 +164,11 @@ export default class TripEvent {
   }
 
   _handleDeleteClick(event) {
+    if (!isOnline()) {
+      toast(`You can't delete event offline`);
+      return;
+    }
+
     this._changeData(
         UserAction.DELETE_EVENT,
         UpdateType.MINOR,
