@@ -4,3 +4,7 @@ export const getRandomInt = (a = 1, b = 0) => {
 
   return Math.floor(lower + Math.random() * (upper - lower + 1));
 };
+
+export const isOnline = () => {
+  return window.navigator.onLine;
+};
