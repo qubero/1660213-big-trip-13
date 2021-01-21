@@ -39,19 +39,19 @@ const createEventCitiesTemplate = (cities) => {
   )).join(``);
 };
 
-const createEventOffersTemplate = (possibleOffers, offers, type) => {
-  const curOffers = possibleOffers.map((possibleOffer, index) => {
+const createEventOffersTemplate = (availableOffers, offers, type) => {
+  const curOffers = availableOffers.map((availableOffer, index) => {
     const isChecked = offers
       .map((offer) => JSON.stringify(offer))
-      .some((offer) => offer === JSON.stringify(possibleOffer));
+      .some((offer) => offer === JSON.stringify(availableOffer));
 
     return (
       `<div class="event__offer-selector">
         <input class="event__offer-checkbox  visually-hidden" id="event-offer-${type}-${index}" type="checkbox" name="event-offer-${type}" ${isChecked ? `checked` : ``}>
         <label class="event__offer-label" for="event-offer-${type}-${index}">
-          <span class="event__offer-title">${possibleOffer.title}</span>
+          <span class="event__offer-title">${availableOffer.title}</span>
           &plus;&euro;&nbsp;
-          <span class="event__offer-price">${possibleOffer.price}</span>
+          <span class="event__offer-price">${availableOffer.price}</span>
         </label>
       </div>`
     );
@@ -107,14 +107,14 @@ export const createEventEditTemplate = (data = {}, allOffers, allDestinations) =
     isDeleting
   } = data;
 
-  const possibleOffers = getOffersByType(allOffers, type);
+  const availableOffers = getOffersByType(allOffers, type);
   const cities = allDestinations.map((curDestination) => curDestination.name);
   const isDescription = !!destination.description;
   const isPhotos = !!destination.photos.length;
 
   const typesTemplate = createEventTypesTemplate(EVENT_TYPES);
   const citiesTemplate = createEventCitiesTemplate(cities);
-  const offersTemplate = possibleOffers.length ? createEventOffersTemplate(possibleOffers, offers, type) : ``;
+  const offersTemplate = availableOffers.length ? createEventOffersTemplate(availableOffers, offers, type) : ``;
   const destinationTemplate = createEventDestinationTemplate(destination, isPhotos, isDescription);
 
   const isSubmitDisabled = date ? (!date.start || !date.end || !price || !destination.city) : true;
@@ -372,10 +372,10 @@ export default class EventEditView extends SmartView {
     const currentOffers = this.getElement().querySelectorAll(`input.event__offer-checkbox`);
 
     if (currentOffers.length) {
-      let newOffers = [];
-      const possibleOffers = getOffersByType(this._allOffers, this._data.type);
+      const newOffers = [];
+      const availableOffers = getOffersByType(this._allOffers, this._data.type);
 
-      possibleOffers.forEach((offer, index) => {
+      availableOffers.forEach((offer, index) => {
         if (currentOffers[index].checked) {
           newOffers.push(offer);
         }

@@ -36,8 +36,8 @@ export const humanizeEventDuration = (eventDuration) => {
 };
 
 export const getOffersByType = (offers, type) => {
-  const possibleOffers = offers.find((offer) => offer.type === type);
-  const currentOffers = possibleOffers && possibleOffers.offers || [];
+  const availableOffers = offers.find((offer) => offer.type === type);
+  const currentOffers = availableOffers && availableOffers.offers || [];
 
   return currentOffers;
 };
