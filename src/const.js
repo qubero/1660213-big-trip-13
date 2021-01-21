@@ -1,12 +1,12 @@
 export const EVENT_TYPES = [`taxi`, `bus`, `train`, `ship`, `transport`, `drive`, `flight`, `check-in`, `sightseeing`, `restaurant`];
 
-export const FILTERS = {
+export const Filters = {
   ALL: `everything`,
   FUTURE: `future`,
   PAST: `past`
 };
 
-export const SORT_TYPES = {
+export const SortTypes = {
   DAY: {name: `Day`, isSortable: true},
   EVENT: {name: `Event`, isSortable: false},
   TIME: {name: `Time`, isSortable: true},
