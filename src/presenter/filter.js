@@ -1,6 +1,6 @@
 import {render, RenderPosition, replace, remove} from "../utils/render.js";
 import FiltersView from "../view/filters.js";
-import {UpdateType, FILTERS} from "../const.js";
+import {UpdateType, Filters} from "../const.js";
 import {filter} from "../utils/filter.js";
 
 export default class Filter {
@@ -54,19 +54,19 @@ export default class Filter {
 
     return [
       {
-        type: FILTERS.ALL,
+        type: Filters.ALL,
         name: `Everything`,
-        isDisabled: !(filter[FILTERS.ALL](events).length)
+        isDisabled: !(filter[Filters.ALL](events).length)
       },
       {
-        type: FILTERS.FUTURE,
+        type: Filters.FUTURE,
         name: `Future`,
-        isDisabled: !(filter[FILTERS.FUTURE](events).length)
+        isDisabled: !(filter[Filters.FUTURE](events).length)
       },
       {
-        type: FILTERS.PAST,
+        type: Filters.PAST,
         name: `Past`,
-        isDisabled: !(filter[FILTERS.PAST](events).length)
+        isDisabled: !(filter[Filters.PAST](events).length)
       },
     ];
   }

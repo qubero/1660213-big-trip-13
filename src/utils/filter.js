@@ -1,7 +1,7 @@
-import {FILTERS} from "../const.js";
+import {Filters} from "../const.js";
 
 export const filter = {
-  [FILTERS.ALL]: (events) => events,
-  [FILTERS.FUTURE]: (events) => events.filter((event) => event.date.start > Date.now()),
-  [FILTERS.PAST]: (events) => events.filter((event) => event.date.end < Date.now()),
+  [Filters.ALL]: (events) => events,
+  [Filters.FUTURE]: (events) => events.filter((event) => event.date.start > Date.now()),
+  [Filters.PAST]: (events) => events.filter((event) => event.date.end < Date.now()),
 };

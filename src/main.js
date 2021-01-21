@@ -1,4 +1,4 @@
-import {MenuItem, UpdateType, FILTERS} from "./const.js";
+import {MenuItem, UpdateType, Filters} from "./const.js";
 import {render, RenderPosition, remove} from "./utils/render.js";
 import {toast} from "./utils/toast/toast.js";
 import {isOnline} from "./utils/common.js";
@@ -52,10 +52,10 @@ const handleSiteMenuClick = (menuItem) => {
       if (document.querySelector(`.statistics`)) {
         remove(statsComponent);
         tripEventsPresenter.destroy();
-        filterModel.setFilter(UpdateType.MAJOR, FILTERS.ALL);
+        filterModel.setFilter(UpdateType.MAJOR, Filters.ALL);
         tripEventsPresenter.init();
       } else {
-        filterModel.setFilter(UpdateType.MAJOR, FILTERS.ALL);
+        filterModel.setFilter(UpdateType.MAJOR, Filters.ALL);
       }
       if (!isOnline()) {
         toast(`You can't create new event offline`);
@@ -66,7 +66,7 @@ const handleSiteMenuClick = (menuItem) => {
       break;
     case MenuItem.TABLE:
       remove(statsComponent);
-      filterModel.setFilter(UpdateType.MAJOR, FILTERS.ALL);
+      filterModel.setFilter(UpdateType.MAJOR, Filters.ALL);
       tripEventsPresenter.init();
       break;
     case MenuItem.STATS:

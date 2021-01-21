@@ -4,7 +4,7 @@ import NoEventsView from "../view/no-events.js";
 import TripEventPresenter, {State as TripEventPresenterViewState} from "./trip-event.js";
 import TripEventNewPresenter from "./trip-event-new.js";
 import {render, RenderPosition, remove} from "../utils/render.js";
-import {SORT_TYPES, UserAction, UpdateType} from "../const.js";
+import {SortTypes, UserAction, UpdateType} from "../const.js";
 import {sortEventsByPrice, sortEventsByDuration, sortEventsByDate} from "../utils/event.js";
 import {filter} from "../utils/filter.js";
 import LoadingView from "../view/loading.js";
@@ -18,7 +18,7 @@ export default class Trip {
 
     this._tripContainer = tripContainer;
     this._eventPresenter = {};
-    this._currentSortType = SORT_TYPES.DAY.name;
+    this._currentSortType = SortTypes.DAY.name;
     this._isLoading = true;
     this._api = api;
 
@@ -63,9 +63,9 @@ export default class Trip {
     const filteredEvents = filter[filterType](events);
 
     switch (this._currentSortType) {
-      case SORT_TYPES.PRICE.name:
+      case SortTypes.PRICE.name:
         return filteredEvents.sort(sortEventsByPrice);
-      case SORT_TYPES.TIME.name:
+      case SortTypes.TIME.name:
         return filteredEvents.sort(sortEventsByDuration);
     }
 
@@ -204,7 +204,7 @@ export default class Trip {
     remove(this._noEventsComponent);
 
     if (resetSortType) {
-      this._currentSortType = SORT_TYPES.DAY.name;
+      this._currentSortType = SortTypes.DAY.name;
     }
   }
 
