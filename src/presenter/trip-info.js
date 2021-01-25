@@ -1,5 +1,5 @@
 import {render, RenderPosition, remove} from "../utils/render.js";
-import TripInfoView from "../view/trip-info.js";
+import TripEventsInfo from "../view/trip-events-info.js";
 import {sortEventsByDate} from "../utils/event.js";
 
 export default class TripInfo {
@@ -36,7 +36,7 @@ export default class TripInfo {
   }
 
   _renderTripInfo() {
-    this._tripInfoComponent = new TripInfoView(this._tripEvents);
+    this._tripInfoComponent = new TripEventsInfo(this._tripEvents);
     render(this._tripInfoContainer, this._tripInfoComponent, RenderPosition.AFTERBEGIN);
   }
 }

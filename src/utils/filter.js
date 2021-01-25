@@ -1,7 +1,7 @@
-import {Filters} from "../const.js";
+import {TripFilters} from "../const.js";
 
 export const filter = {
-  [Filters.ALL]: (events) => events,
-  [Filters.FUTURE]: (events) => events.filter((event) => event.date.start > Date.now()),
-  [Filters.PAST]: (events) => events.filter((event) => event.date.end < Date.now()),
+  [TripFilters.ALL]: (events) => events,
+  [TripFilters.FUTURE]: (events) => events.filter((event) => event.date.start > Date.now()),
+  [TripFilters.PAST]: (events) => events.filter((event) => event.date.end < Date.now()),
 };

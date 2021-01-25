@@ -1,4 +1,4 @@
-import AbstractView from "./abstract.js";
+import Abstract from "./abstract.js";
 import {MenuItem} from "../const.js";
 
 const createSiteMenuTemplate = () => {
@@ -12,10 +12,11 @@ const createSiteMenuTemplate = () => {
   </div>`;
 };
 
-export default class SiteMenuView extends AbstractView {
+export default class SiteMenu extends Abstract {
   constructor() {
     super();
 
+    this._menuTabs = null;
     this._menuClickHandler = this._menuClickHandler.bind(this);
   }
 
@@ -36,18 +37,16 @@ export default class SiteMenuView extends AbstractView {
 
   setMenuClickHandler(callback) {
     this._callback.menuClick = callback;
-    const menuTabs = this.getElement().querySelectorAll(`.trip-tabs__btn`);
+    this._menuTabs = this.getElement().querySelectorAll(`.trip-tabs__btn`);
 
-    menuTabs.forEach((tab) => tab.addEventListener(`click`, this._menuClickHandler));
+    this._menuTabs.forEach((tab) => tab.addEventListener(`click`, this._menuClickHandler));
   }
 
   setMenuItem(menuItem) {
     const item = this.getElement().querySelector(`[data-menu-item=${menuItem}]`);
 
     if (item !== null) {
-      this.getElement()
-        .querySelectorAll(`.trip-tabs__btn`)
-        .forEach((tab) => tab.classList.remove(`trip-tabs__btn--active`));
+      this._menuTabs.forEach((tab) => tab.classList.remove(`trip-tabs__btn--active`));
 
       item.classList.add(`trip-tabs__btn--active`);
     }

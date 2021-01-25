@@ -1,4 +1,4 @@
-import {MenuItem, UpdateType, Filters} from "./const.js";
+import {MenuItem, UpdateType, TripFilters} from "./const.js";
 import {render, RenderPosition, remove} from "./utils/render.js";
 import {toast} from "./utils/toast/toast.js";
 import {isOnline} from "./utils/common.js";
@@ -8,8 +8,8 @@ import FilterModel from "./model/filter.js";
 import OffersModel from "./model/offers.js";
 import DestinationsModel from "./model/destinations.js";
 
-import SiteMenuView from "./view/site-menu.js";
-import StatsView from "./view/stats.js";
+import SiteMenu from "./view/site-menu.js";
+import Stats from "./view/stats.js";
 
 import TripEventsPresenter from "./presenter/trip.js";
 import TripInfoPresenter from "./presenter/trip-info.js";
@@ -19,7 +19,7 @@ import Api from "./api/api.js";
 import Store from "./api/store.js";
 import Provider from "./api/provider.js";
 
-const AUTHORIZATION = `Basic ef090wi25k8998a`;
+const AUTHORIZATION = `Basic ef090wi25k9889a`;
 const END_POINT = `https://13.ecmascript.pages.academy/big-trip`;
 const STORE_PREFIX = `big-trip-localstorage`;
 const STORE_VER = `v1`;
@@ -38,7 +38,7 @@ const siteHeaderElement = document.querySelector(`.page-header`);
 const tripMainElement = siteHeaderElement.querySelector(`.trip-main`);
 const сontrolsElement = siteHeaderElement.querySelector(`.trip-controls`);
 const siteMainElement = document.querySelector(`.page-main>.page-body__container`);
-const siteMenuComponent = new SiteMenuView();
+const siteMenuComponent = new SiteMenu();
 
 const tripInfoPresenter = new TripInfoPresenter(tripMainElement, eventsModel);
 const filterPresenter = new FilterPresenter(сontrolsElement, filterModel, eventsModel);
@@ -52,10 +52,10 @@ const handleSiteMenuClick = (menuItem) => {
       if (document.querySelector(`.statistics`)) {
         remove(statsComponent);
         tripEventsPresenter.destroy();
-        filterModel.setFilter(UpdateType.MAJOR, Filters.ALL);
+        filterModel.setFilter(UpdateType.MAJOR, TripFilters.ALL);
         tripEventsPresenter.init();
       } else {
-        filterModel.setFilter(UpdateType.MAJOR, Filters.ALL);
+        filterModel.setFilter(UpdateType.MAJOR, TripFilters.ALL);
       }
       if (!isOnline()) {
         toast(`You can't create new event offline`);
@@ -66,12 +66,12 @@ const handleSiteMenuClick = (menuItem) => {
       break;
     case MenuItem.TABLE:
       remove(statsComponent);
-      filterModel.setFilter(UpdateType.MAJOR, Filters.ALL);
+      filterModel.setFilter(UpdateType.MAJOR, TripFilters.ALL);
       tripEventsPresenter.init();
       break;
     case MenuItem.STATS:
       tripEventsPresenter.destroy();
-      statsComponent = new StatsView(eventsModel.getEvents());
+      statsComponent = new Stats(eventsModel.getEvents());
       render(siteMainElement, statsComponent, RenderPosition.AFTERBEGIN);
       break;
   }

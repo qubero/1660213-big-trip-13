@@ -1,13 +1,13 @@
-import TripSortView from "../view/trip-sort.js";
-import EventsListView from "../view/events-list.js";
-import NoEventsView from "../view/no-events.js";
+import TripSort from "../view/trip-sort.js";
+import EventsList from "../view/events-list.js";
+import NoEvents from "../view/no-events.js";
 import TripEventPresenter, {State as TripEventPresenterViewState} from "./trip-event.js";
 import TripEventNewPresenter from "./trip-event-new.js";
 import {render, RenderPosition, remove} from "../utils/render.js";
 import {SortTypes, UserAction, UpdateType} from "../const.js";
 import {sortEventsByPrice, sortEventsByDuration, sortEventsByDate} from "../utils/event.js";
 import {filter} from "../utils/filter.js";
-import LoadingView from "../view/loading.js";
+import Loading from "../view/loading.js";
 
 export default class Trip {
   constructor(tripContainer, eventsModel, filterModel, offersModel, destinationsModel, api) {
@@ -24,9 +24,9 @@ export default class Trip {
 
     this._tripEventsContainer = tripContainer.querySelector(`.trip-events`);
     this._tripSortComponent = null;
-    this._eventsComponent = new EventsListView();
-    this._noEventsComponent = new NoEventsView();
-    this._loadingComponent = new LoadingView();
+    this._eventsComponent = new EventsList();
+    this._noEventsComponent = new NoEvents();
+    this._loadingComponent = new Loading();
 
     this._handleViewAction = this._handleViewAction.bind(this);
     this._handleModelEvent = this._handleModelEvent.bind(this);
@@ -168,7 +168,7 @@ export default class Trip {
       this._tripSortComponent = null;
     }
 
-    this._tripSortComponent = new TripSortView(this._currentSortType);
+    this._tripSortComponent = new TripSort(this._currentSortType);
     this._tripSortComponent.setSortTypeChangeHandler(this._handleSortTypeChange);
 
     render(this._tripEventsContainer, this._tripSortComponent, RenderPosition.BEFOREEND);

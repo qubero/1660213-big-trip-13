@@ -1,10 +1,10 @@
-import AbstractView from "./abstract";
+import Abstract from "./abstract";
 
 const createTripInfoTemplate = () => {
   return `<p class="trip-events__msg">Loading...</p>`;
 };
 
-export default class LoadingView extends AbstractView {
+export default class Loading extends Abstract {
   getTemplate() {
     return createTripInfoTemplate();
   }

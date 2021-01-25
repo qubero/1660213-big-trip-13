@@ -1003,7 +1003,7 @@ main {
 .shake {
   animation: shake 0.6s; }
 
-.event--edit fieldset {
+.event--edit > fieldset {
   border: 0;
   padding: 0;
   margin: 0;

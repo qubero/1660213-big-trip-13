@@ -1,5 +1,5 @@
 import {SortTypes} from "../const.js";
-import AbstractView from "./abstract.js";
+import Abstract from "./abstract.js";
 
 const createSortsTemplate = (sortTypes, currentSortType) => {
   return Object.values(sortTypes).map((sortType) => {
@@ -31,7 +31,7 @@ const createTripSortTemplate = (currentSortType) => {
   </form>`;
 };
 
-export default class TripSortView extends AbstractView {
+export default class TripSort extends Abstract {
   constructor(sortType) {
     super();
 

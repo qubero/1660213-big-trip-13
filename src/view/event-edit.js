@@ -1,12 +1,12 @@
 import {getOffersByType, humanizeDate} from "../utils/event.js";
-import {EVENT_TYPES} from "../const.js";
-import SmartView from "./smart.js";
+import {EventTypes} from "../const.js";
+import Smart from "./smart.js";
 import flatpickr from "flatpickr";
 
 import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 
 const BLANK_EVENT = {
-  type: `taxi`,
+  type: EventTypes.TAXI,
   date: null,
   price: null,
   offers: [],
@@ -24,10 +24,10 @@ const flatpickrInitSettings = {
   dateFormat: `d/m/y H:i`,
 };
 
-const createEventTypesTemplate = (types) => {
-  return types.map((type) => (
+const createEventTypesTemplate = (types, curType) => {
+  return Object.values(types).map((type) => (
     `<div class="event__type-item">
-      <input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}">
+      <input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}" ${type === curType ? `checked` : ``}>
       <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-1" style="text-transform:capitalize;">${type}</label>
     </div>`
   )).join(``);
@@ -112,7 +112,7 @@ export const createEventEditTemplate = (data = {}, allOffers, allDestinations) =
   const isDescription = !!destination.description;
   const isPhotos = !!destination.photos.length;
 
-  const typesTemplate = createEventTypesTemplate(EVENT_TYPES);
+  const typesTemplate = createEventTypesTemplate(EventTypes, type);
   const citiesTemplate = createEventCitiesTemplate(cities);
   const offersTemplate = availableOffers.length ? createEventOffersTemplate(availableOffers, offers, type) : ``;
   const destinationTemplate = createEventDestinationTemplate(destination, isPhotos, isDescription);
@@ -190,10 +190,10 @@ export const createEventEditTemplate = (data = {}, allOffers, allDestinations) =
   </li>`;
 };
 
-export default class EventEditView extends SmartView {
+export default class EventEdit extends Smart {
   constructor(event = BLANK_EVENT, offersModel, destinationsModel, isNew = false) {
     super();
-    this._data = Object.assign({}, EventEditView.parseEventToData(event, isNew));
+    this._data = Object.assign({}, EventEdit.parseEventToData(event, isNew));
     this._startDatepicker = null;
     this._endDatepicker = null;
     this._offersModel = offersModel;
@@ -230,7 +230,7 @@ export default class EventEditView extends SmartView {
 
   reset(event) {
     this.updateData(
-        EventEditView.parseEventToData(event)
+        EventEdit.parseEventToData(event)
     );
   }
 
@@ -263,9 +263,8 @@ export default class EventEditView extends SmartView {
             {},
             flatpickrInitSettings,
             {
-              minDate: Date.now(),
-              defaultDate: this._data.date ? this._data.date.start : ``,
-              onClose: this._startDateChangeHandler
+              defaultDate: this._data.date ? this._data.date.start : null,
+              onChange: this._startDateChangeHandler
             }
         )
     );
@@ -276,9 +275,8 @@ export default class EventEditView extends SmartView {
             {},
             flatpickrInitSettings,
             {
-              minDate: this._data.date ? this._data.date.start : ``,
-              defaultDate: this._data.date ? this._data.date.end : ``,
-              onClose: this._endDateChangeHandler
+              defaultDate: this._data.date ? this._data.date.end : null,
+              onChange: this._endDateChangeHandler
             }
         )
     );
@@ -293,7 +291,7 @@ export default class EventEditView extends SmartView {
       .addEventListener(`change`, this._eventDestinationChangeHandler);
     this.getElement()
       .querySelector(`.event__input--price`)
-      .addEventListener(`blur`, this._priceInputHandler);
+      .addEventListener(`change`, this._priceInputHandler);
   }
 
   _rollupClickHandler(evt) {
@@ -338,25 +336,107 @@ export default class EventEditView extends SmartView {
   }
 
   _startDateChangeHandler([userDate]) {
-    const newEndDate = (!this._data.date || userDate > this._data.date.end)
-      ? ``
-      : this._data.date.end;
+    if (!this._data.date || (this._data.date.start && !this._data.date.end)) {
+      this.updateData({
+        date: {
+          start: userDate || null,
+          end: null
+        }
+      });
 
-    this.updateData({
-      date: {
-        start: userDate,
-        end: newEndDate
+      return;
+    }
+
+    if (!this._data.date.start && this._data.date.end) {
+      let newEndDate = null;
+
+      if (userDate && userDate > this._data.date.end) {
+        const datesInterval = this._data.date.end.getTime() - new Date().setHours(0, 0, 0, 0);
+        newEndDate = new Date(userDate.getTime() + datesInterval);
       }
-    });
+
+      this.updateData({
+        date: {
+          start: userDate || null,
+          end: newEndDate || this._data.date.end
+        }
+      });
+
+      return;
+    }
+
+    if (this._data.date.start && this._data.date.end) {
+      if (userDate && userDate > this._data.date.end) {
+        const datesInterval = this._data.date.end.getTime() - this._data.date.start.getTime();
+        const newEndDate = new Date(userDate.getTime() + datesInterval);
+
+        this.updateData({
+          date: {
+            start: userDate,
+            end: newEndDate
+          }
+        });
+      } else {
+        this.updateData({
+          date: {
+            start: userDate || null,
+            end: this._data.date.end
+          }
+        });
+      }
+    }
   }
 
   _endDateChangeHandler([userDate]) {
-    this.updateData({
-      date: {
-        start: this._data.date ? this._data.date.start : ``,
-        end: userDate
+    if (!this._data.date || (this._data.date.end && !this._data.date.start)) {
+      this.updateData({
+        date: {
+          start: null,
+          end: userDate || null
+        }
+      });
+
+      return;
+    }
+
+    if (this._data.date.start && !this._data.date.end) {
+      let newStartDate = null;
+
+      if (userDate && userDate < this._data.date.start) {
+        const datesInterval = this._data.date.start.getTime() - new Date().setHours(0, 0, 0, 0);
+        newStartDate = new Date(userDate.getTime() - datesInterval);
       }
-    });
+
+      this.updateData({
+        date: {
+          start: newStartDate || this._data.date.start,
+          end: userDate || null
+        }
+      });
+
+      return;
+    }
+
+    if (this._data.date.start && this._data.date.end) {
+      if (userDate && userDate < this._data.date.start) {
+        const datesInterval = this._data.date.end.getTime() - this._data.date.start.getTime();
+        const newStartDate = new Date(userDate.getTime() - datesInterval);
+
+        this.updateData({
+          date: {
+            start: newStartDate,
+            end: userDate
+          }
+        });
+      } else {
+        this.updateData({
+          date: {
+            start: this._data.date.start,
+            end: userDate || null
+          }
+        });
+      }      
+    }
   }
 
   _priceInputHandler(evt) {
@@ -386,7 +466,7 @@ export default class EventEditView extends SmartView {
       });
     }
 
-    this._callback.formSubmit(EventEditView.parseDataToEvent(this._data));
+    this._callback.formSubmit(EventEdit.parseDataToEvent(this._data));
   }
 
   setFormSubmitHandler(callback) {
@@ -396,7 +476,7 @@ export default class EventEditView extends SmartView {
 
   _formDeleteClickHandler(evt) {
     evt.preventDefault();
-    this._callback.deleteClick(EventEditView.parseDataToEvent(this._data));
+    this._callback.deleteClick(EventEdit.parseDataToEvent(this._data));
   }
 
   setDeleteClickHandler(callback) {

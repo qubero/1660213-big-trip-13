@@ -1,7 +1,7 @@
-import EventView from "../view/event.js";
-import EventEditView from "../view/event-edit.js";
+import Event from "../view/event.js";
+import EventEdit from "../view/event-edit.js";
 import {render, RenderPosition, replace, remove} from "../utils/render.js";
-import {UserAction, UpdateType} from "../const.js";
+import {UserAction, UpdateType, EscKeyEvent} from "../const.js";
 import {toast} from "../utils/toast/toast.js";
 import {isOnline} from "../utils/common.js";
 
@@ -42,8 +42,8 @@ export default class TripEvent {
     const prevEventComponent = this._eventComponent;
     const prevEventEditComponent = this._eventEditComponent;
 
-    this._eventComponent = new EventView(event);
-    this._eventEditComponent = new EventEditView(event, this._offersModel, this._destinationsModel);
+    this._eventComponent = new Event(event);
+    this._eventEditComponent = new EventEdit(event, this._offersModel, this._destinationsModel);
 
     this._eventComponent.setEditClickHandler(this._handleEditClick);
     this._eventComponent.setFavoriteClickHandler(this._handleFavoriteClick);
@@ -177,7 +177,7 @@ export default class TripEvent {
   }
 
   _escKeyDownHandler(evt) {
-    if (evt.key === `Escape` || evt.key === `Esc`) {
+    if (evt.key === EscKeyEvent.ESCAPE || evt.key === EscKeyEvent.ESC) {
       evt.preventDefault();
       this._replaceFormToPoint();
     }

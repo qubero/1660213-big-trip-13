@@ -1,6 +1,6 @@
 import {render, RenderPosition, replace, remove} from "../utils/render.js";
-import FiltersView from "../view/filters.js";
-import {UpdateType, Filters} from "../const.js";
+import Filters from "../view/filters.js";
+import {UpdateType, TripFilters} from "../const.js";
 import {filter} from "../utils/filter.js";
 
 export default class Filter {
@@ -25,7 +25,7 @@ export default class Filter {
     const filters = this._getFilters();
     const prevFilterComponent = this._filterComponent;
 
-    this._filterComponent = new FiltersView(filters, this._currentFilter);
+    this._filterComponent = new Filters(filters, this._currentFilter);
     this._filterComponent.setFilterTypeChangeHandler(this._handleFilterTypeChange);
 
     if (prevFilterComponent === null) {
@@ -54,19 +54,19 @@ export default class Filter {
 
     return [
       {
-        type: Filters.ALL,
+        type: TripFilters.ALL,
         name: `Everything`,
-        isDisabled: !(filter[Filters.ALL](events).length)
+        isDisabled: !(filter[TripFilters.ALL](events).length)
       },
       {
-        type: Filters.FUTURE,
+        type: TripFilters.FUTURE,
         name: `Future`,
-        isDisabled: !(filter[Filters.FUTURE](events).length)
+        isDisabled: !(filter[TripFilters.FUTURE](events).length)
       },
       {
-        type: Filters.PAST,
+        type: TripFilters.PAST,
         name: `Past`,
-        isDisabled: !(filter[Filters.PAST](events).length)
+        isDisabled: !(filter[TripFilters.PAST](events).length)
       },
     ];
   }

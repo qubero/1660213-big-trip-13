@@ -1,5 +1,7 @@
-import AbstractView from "./abstract";
+import Abstract from "./abstract";
 import {renderMoneyChart, renderTypeChart, renderTimeChart} from "../utils/stats";
+
+const BAR_HEIGHT = 55;
 
 const createStatsTemplate = () => {
   return `<section class="statistics">
@@ -19,7 +21,7 @@ const createStatsTemplate = () => {
   </section>`;
 };
 
-export default class StatsView extends AbstractView {
+export default class Stats extends Abstract {
   constructor(events) {
     super();
 
@@ -49,12 +51,9 @@ export default class StatsView extends AbstractView {
     this._data.forEach((event) => types.push(event.type.toUpperCase()));
     const labels = [...new Set(types)];
 
-    const BAR_HEIGHT = 55;
-    const LABELS_COUNT = labels.length;
-
-    moneyCtx.height = BAR_HEIGHT * LABELS_COUNT;
-    typeCtx.height = BAR_HEIGHT * LABELS_COUNT;
-    timeCtx.height = BAR_HEIGHT * LABELS_COUNT;
+    moneyCtx.height = BAR_HEIGHT * labels.length;
+    typeCtx.height = BAR_HEIGHT * labels.length;
+    timeCtx.height = BAR_HEIGHT * labels.length;
 
     this._moneyChart = renderMoneyChart(moneyCtx, this._data, labels);
     this._typeChart = renderTypeChart(typeCtx, this._data, labels);

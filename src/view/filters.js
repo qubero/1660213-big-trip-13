@@ -1,4 +1,4 @@
-import AbstractView from "./abstract";
+import Abstract from "./abstract";
 
 const createFilterItemsTemplate = (filters, currentFilterType) => {
   return filters.map((filter) => {
@@ -36,7 +36,7 @@ const createFiltersTemplate = (filterItems, currentFilterType) => {
   </div>`;
 };
 
-export default class FiltersView extends AbstractView {
+export default class Filters extends Abstract {
   constructor(filters, currentFilterType) {
     super();
     this._filters = filters;

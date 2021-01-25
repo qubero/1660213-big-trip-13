@@ -1,6 +1,17 @@
-export const EVENT_TYPES = [`taxi`, `bus`, `train`, `ship`, `transport`, `drive`, `flight`, `check-in`, `sightseeing`, `restaurant`];
+export const EventTypes = {
+  TAXI: `taxi`,
+  BUS: `bus`,
+  TRAIN: `train`,
+  SHIP: `ship`,
+  TRANSPORT: `transport`,
+  DRIVE: `drive`,
+  FLIGHT: `flight`,
+  CHECKIN: `check-in`,
+  SIGHTSEEING: `sightseeing`,
+  RESTAURANT: `restaurant`
+};
 
-export const Filters = {
+export const TripFilters = {
   ALL: `everything`,
   FUTURE: `future`,
   PAST: `past`
@@ -31,4 +42,9 @@ export const UpdateType = {
   MINOR: `MINOR`,
   MAJOR: `MAJOR`,
   INIT: `INIT`
+};
+
+export const EscKeyEvent = {
+  ESCAPE: `Escape`,
+  ESC: `Esc`
 };

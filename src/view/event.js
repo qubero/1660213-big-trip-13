@@ -1,5 +1,5 @@
 import {getEventDuration, humanizeEventDuration, humanizeDate} from "../utils/event.js";
-import AbstractView from "./abstract.js";
+import Abstract from "./abstract.js";
 
 const createEventOffersTemplate = (offers) => {
   return offers.map((offer) => (
@@ -52,7 +52,7 @@ const createEventTemplate = (event) => {
   </li>`;
 };
 
-export default class EventView extends AbstractView {
+export default class Event extends Abstract {
   constructor(event) {
     super();
     this._event = event;

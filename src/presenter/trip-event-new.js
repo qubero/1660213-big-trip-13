@@ -1,6 +1,6 @@
-import EventEditView from "../view/event-edit.js";
+import EventEdit from "../view/event-edit.js";
 import {render, RenderPosition, remove} from "../utils/render.js";
-import {UserAction, UpdateType} from "../const.js";
+import {UserAction, UpdateType, EscKeyEvent} from "../const.js";
 
 export default class TripEventNew {
   constructor(eventsListContainer, changeData, offersModel, destinationsModel) {
@@ -21,7 +21,7 @@ export default class TripEventNew {
       return;
     }
 
-    this._eventEditComponent = new EventEditView(event, this._offersModel, this._destinationsModel, true);
+    this._eventEditComponent = new EventEdit(event, this._offersModel, this._destinationsModel, true);
     this._eventEditComponent.setFormSubmitHandler(this._handleFormSubmit);
     this._eventEditComponent.setDeleteClickHandler(this._handleDeleteClick);
 
@@ -73,7 +73,7 @@ export default class TripEventNew {
   }
 
   _escKeyDownHandler(evt) {
-    if (evt.key === `Escape` || evt.key === `Esc`) {
+    if (evt.key === EscKeyEvent.ESCAPE || evt.key === EscKeyEvent.ESC) {
       evt.preventDefault();
       this.destroy();
     }

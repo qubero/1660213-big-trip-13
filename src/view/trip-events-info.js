@@ -1,9 +1,9 @@
 import {humanizeDate} from "../utils/event.js";
-import AbstractView from "./abstract";
+import Abstract from "./abstract";
+
+const MAX_CITIES = 3;
 
 const getTripTitle = (events) => {
-  const MAX_CITIES = 3;
-
   if (events.length > MAX_CITIES) {
     return `${events[0].destination.city} &mdash; ... &mdash; ${events[events.length - 1].destination.city}`;
   }
@@ -22,7 +22,7 @@ const getTripDates = (events) => {
   return `${humanizeDate(date.start, `MMM-DD`)}&nbsp;&mdash;&nbsp;${humanizeDate(date.end, `MMM-DD`)}`;
 };
 
-const createTripInfoTemplate = (events) => {
+const createTripEventsInfoTemplate = (events) => {
   const tripTitle = getTripTitle(events);
   const tripDates = getTripDates(events);
 
@@ -45,13 +45,13 @@ const createTripInfoTemplate = (events) => {
   </section>`;
 };
 
-export default class TripInfoView extends AbstractView {
+export default class TripEventsInfo extends Abstract {
   constructor(events) {
     super();
     this._events = events;
   }
 
   getTemplate() {
-    return createTripInfoTemplate(this._events);
+    return createTripEventsInfoTemplate(this._events);
   }
 }
