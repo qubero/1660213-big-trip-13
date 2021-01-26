@@ -27,11 +27,7 @@ const flatpickrInitSettings = {
 const DATE_NOW = new Date().setHours(12, 0, 0, 0);
 
 const isSubmitDisabled = (data) => {
-  if (!data.date || !data.date.start || !data.date.end || !data.price || !data.destination.city) {
-    return true;
-  }
-
-  return false;
+  return !data.date || !data.date.start || !data.date.end || !data.price || !data.destination.city;
 };
 
 const createEventTypesTemplate = (types, curType) => {
