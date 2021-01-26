@@ -24,12 +24,16 @@ export const humanizeEventDurationDays = (eventDuration) => {
 
 export const humanizeEventDuration = (eventDuration) => {
   const currentDuration = dayjs.duration(eventDuration);
+  const years = currentDuration.years();
+  const months = currentDuration.months();
   const days = currentDuration.days();
   const hours = currentDuration.hours();
   const minutes = currentDuration.minutes();
 
   return (
-    `${(days > 0 && addZero(days) + `D`) || ``}
+    `${(years > 0 && addZero(years) + `Y`) || ``}
+    ${(months > 0 && addZero(months) + `M`) || ``}
+    ${(days > 0 && addZero(days) + `D`) || ``}
     ${(hours > 0 && addZero(hours) + `H`) || ``}
     ${addZero(minutes)}M`
   );
