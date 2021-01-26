@@ -28,6 +28,7 @@ export default class TripEventNew {
     render(this._eventsListContainer, this._eventEditComponent, RenderPosition.AFTERBEGIN);
 
     document.addEventListener(`keydown`, this._escKeyDownHandler);
+    document.querySelector(`.trip-main__event-add-btn`).disabled = true;
   }
 
   destroy() {
@@ -39,6 +40,7 @@ export default class TripEventNew {
     this._eventEditComponent = null;
 
     document.removeEventListener(`keydown`, this._escKeyDownHandler);
+    document.querySelector(`.trip-main__event-add-btn`).disabled = false;
   }
 
   setSaving() {

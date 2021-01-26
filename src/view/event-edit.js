@@ -24,6 +24,16 @@ const flatpickrInitSettings = {
   dateFormat: `d/m/y H:i`,
 };
 
+const DATE_NOW = new Date().setHours(12, 0, 0, 0);
+
+const isSubmitDisabled = (data) => {
+  if (!data.date || !data.date.start || !data.date.end || !data.price || !data.destination.city) {
+    return true;
+  }
+
+  return false;
+};
+
 const createEventTypesTemplate = (types, curType) => {
   return Object.values(types).map((type) => (
     `<div class="event__type-item">
@@ -117,8 +127,6 @@ export const createEventEditTemplate = (data = {}, allOffers, allDestinations) =
   const offersTemplate = availableOffers.length ? createEventOffersTemplate(availableOffers, offers, type) : ``;
   const destinationTemplate = createEventDestinationTemplate(destination, isPhotos, isDescription);
 
-  const isSubmitDisabled = date ? (!date.start || !date.end || !price || !destination.city) : true;
-
   const getResetBtnText = () => {
     if (isNew) {
       return `Cancel`;
@@ -174,7 +182,7 @@ export const createEventEditTemplate = (data = {}, allOffers, allDestinations) =
             <input class="event__input  event__input--price" id="event-price-1" type="number" min="0" name="event-price" value="${price || ``}" required>
           </div>
 
-          <button class="event__save-btn  btn  btn--blue" type="submit" ${isSubmitDisabled ? `disabled` : ``}>${isSaving ? `Saving...` : `Save`}</button>
+          <button class="event__save-btn  btn  btn--blue" type="submit">${isSaving ? `Saving...` : `Save`}</button>
           <button class="event__reset-btn" type="reset">${getResetBtnText()}</button>
           <button class="event__rollup-btn" ${isNew ? `style="display: none!important;"` : ``} type="button">
             <span class="visually-hidden">Open event</span>
@@ -194,6 +202,7 @@ export default class EventEdit extends Smart {
   constructor(event = BLANK_EVENT, offersModel, destinationsModel, isNew = false) {
     super();
     this._data = Object.assign({}, EventEdit.parseEventToData(event, isNew));
+    this._submitBtn = null;
     this._startDatepicker = null;
     this._endDatepicker = null;
     this._offersModel = offersModel;
@@ -210,6 +219,7 @@ export default class EventEdit extends Smart {
     this._endDateChangeHandler = this._endDateChangeHandler.bind(this);
     this._priceInputHandler = this._priceInputHandler.bind(this);
 
+    this._setSubmitBtn();
     this._setInnerHandllers();
     this._setDatepickers();
   }
@@ -239,11 +249,17 @@ export default class EventEdit extends Smart {
   }
 
   restoreHandlers() {
+    this._setSubmitBtn();
     this._setInnerHandllers();
     this._setDatepickers();
     this.setRollupClickHandler(this._callback.rollupClick);
     this.setFormSubmitHandler(this._callback.formSubmit);
     this.setDeleteClickHandler(this._callback.deleteClick);
+  }
+
+  _setSubmitBtn() {
+    this._submitBtn = this.getElement().querySelector(`.event__save-btn`);
+    this._submitBtn.disabled = isSubmitDisabled(this._data);
   }
 
   _setDatepickers() {
@@ -285,13 +301,13 @@ export default class EventEdit extends Smart {
   _setInnerHandllers() {
     this.getElement()
       .querySelector(`.event__type-group`)
-      .addEventListener(`change`, this._eventTypeSelectHandler);
+      .addEventListener(`input`, this._eventTypeSelectHandler);
     this.getElement()
       .querySelector(`.event__input--destination`)
-      .addEventListener(`change`, this._eventDestinationChangeHandler);
+      .addEventListener(`input`, this._eventDestinationChangeHandler);
     this.getElement()
       .querySelector(`.event__input--price`)
-      .addEventListener(`change`, this._priceInputHandler);
+      .addEventListener(`input`, this._priceInputHandler);
   }
 
   _rollupClickHandler(evt) {
@@ -322,6 +338,7 @@ export default class EventEdit extends Smart {
       evt.target.setCustomValidity(`Choose actual destination`);
       evt.target.style.outline = `2px solid red`;
       evt.target.reportValidity();
+      this._submitBtn.disabled = true;
 
       return;
     }
@@ -333,6 +350,8 @@ export default class EventEdit extends Smart {
         photos: newDestination.pictures
       }
     });
+
+    this._submitBtn.disabled = isSubmitDisabled(this._data);
   }
 
   _startDateChangeHandler([userDate]) {
@@ -344,6 +363,8 @@ export default class EventEdit extends Smart {
         }
       });
 
+      this._submitBtn.disabled = isSubmitDisabled(this._data);
+
       return;
     }
 
@@ -351,7 +372,7 @@ export default class EventEdit extends Smart {
       let newEndDate = null;
 
       if (userDate && userDate > this._data.date.end) {
-        const datesInterval = this._data.date.end.getTime() - new Date().setHours(0, 0, 0, 0);
+        const datesInterval = Math.abs(this._data.date.end.getTime() - DATE_NOW);
         newEndDate = new Date(userDate.getTime() + datesInterval);
       }
 
@@ -362,12 +383,14 @@ export default class EventEdit extends Smart {
         }
       });
 
+      this._submitBtn.disabled = isSubmitDisabled(this._data);
+
       return;
     }
 
     if (this._data.date.start && this._data.date.end) {
       if (userDate && userDate > this._data.date.end) {
-        const datesInterval = this._data.date.end.getTime() - this._data.date.start.getTime();
+        const datesInterval = Math.abs(this._data.date.end.getTime() - this._data.date.start.getTime());
         const newEndDate = new Date(userDate.getTime() + datesInterval);
 
         this.updateData({
@@ -384,6 +407,8 @@ export default class EventEdit extends Smart {
           }
         });
       }
+
+      this._submitBtn.disabled = isSubmitDisabled(this._data);
     }
   }
 
@@ -396,6 +421,8 @@ export default class EventEdit extends Smart {
         }
       });
 
+      this._submitBtn.disabled = isSubmitDisabled(this._data);
+
       return;
     }
 
@@ -403,7 +430,7 @@ export default class EventEdit extends Smart {
       let newStartDate = null;
 
       if (userDate && userDate < this._data.date.start) {
-        const datesInterval = this._data.date.start.getTime() - new Date().setHours(0, 0, 0, 0);
+        const datesInterval = Math.abs(this._data.date.start.getTime() - DATE_NOW);
         newStartDate = new Date(userDate.getTime() - datesInterval);
       }
 
@@ -414,12 +441,14 @@ export default class EventEdit extends Smart {
         }
       });
 
+      this._submitBtn.disabled = isSubmitDisabled(this._data);
+
       return;
     }
 
     if (this._data.date.start && this._data.date.end) {
       if (userDate && userDate < this._data.date.start) {
-        const datesInterval = this._data.date.end.getTime() - this._data.date.start.getTime();
+        const datesInterval = Math.abs(this._data.date.end.getTime() - this._data.date.start.getTime());
         const newStartDate = new Date(userDate.getTime() - datesInterval);
 
         this.updateData({
@@ -435,7 +464,9 @@ export default class EventEdit extends Smart {
             end: userDate || null
           }
         });
-      }      
+      }
+
+      this._submitBtn.disabled = isSubmitDisabled(this._data);
     }
   }
 
@@ -443,7 +474,9 @@ export default class EventEdit extends Smart {
     evt.preventDefault();
     this.updateData({
       price: parseInt(evt.target.value, 10)
-    });
+    }, true);
+
+    this._submitBtn.disabled = isSubmitDisabled(this._data);
   }
 
   _formSubmitHandler(evt) {
