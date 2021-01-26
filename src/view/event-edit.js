@@ -355,6 +355,16 @@ export default class EventEdit extends Smart {
   }
 
   _startDateChangeHandler([userDate]) {
+    if (this._data.date && !this._data.date.end && !userDate) {
+      this.updateData({
+        date: null
+      });
+
+      this._submitBtn.disabled = isSubmitDisabled(this._data);
+
+      return;
+    }
+
     if (!this._data.date || (this._data.date.start && !this._data.date.end)) {
       this.updateData({
         date: {
@@ -413,6 +423,16 @@ export default class EventEdit extends Smart {
   }
 
   _endDateChangeHandler([userDate]) {
+    if (this._data.date && !this._data.date.start && !userDate) {
+      this.updateData({
+        date: null
+      });
+
+      this._submitBtn.disabled = isSubmitDisabled(this._data);
+
+      return;
+    }
+
     if (!this._data.date || (this._data.date.end && !this._data.date.start)) {
       this.updateData({
         date: {
